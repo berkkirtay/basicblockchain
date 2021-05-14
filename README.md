@@ -2,6 +2,6 @@
 
 I am still working on this. 
 
-### Curren components: 
+### Current components: 
 - A test script
 - Test GUI 
