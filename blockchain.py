@@ -45,12 +45,13 @@ class blockchain():
     hashDifficulty = 0
     miningReward = 0
     transactions = []
+    lastBlockLog = ''
     def __init__(self, hashDifficulty, miningReward):
         print(f"Mining difficulty is {hashDifficulty}\n")
         self.hashDifficulty = hashDifficulty
         self.miningReward = miningReward
         self.blockchain = [self.createGenesisBlock()]
-       # self.transactions 
+
     # Genesis block is the first node of the blockchain, so, we generated a random string for the starting point(hash).
     def createGenesisBlock(self):
         randomKey = ''.join(random.choice(string.ascii_lowercase) for i in range(30))
@@ -74,7 +75,8 @@ class blockchain():
     def addTransaction(self, newTransaction):
         transactionCoins = self.getBalance(newTransaction.source, -1)
         if newTransaction.coins <= 0 or transactionCoins < newTransaction.coins:
-            print(f"Insufficient coins in the source! {newTransaction.source} needs: {newTransaction.coins - transactionCoins}")
+            self.lastBlockLog = f"Insufficient coins in the source! {newTransaction.source} needs: {newTransaction.coins - transactionCoins}"
+            print(self.lastBlockLog)
             return False
 
         self.transactions.append(newTransaction)
@@ -124,30 +126,30 @@ class transaction():
         return sha256(newHash.encode('utf-8')).hexdigest()   
 
 
-block1 = blockchain(4,0.2) # Mining Difficulty and reward
-#block1.forceTransaction(transaction("null", "person1", 100))
+class wallet():
+    ownerName = '' # aka source
+    publicAddress = ''
+    privateAddress = ''
+    coins = 0
+    transactions = []
+    creationTime = None
+    def __init__(self, ownerName, publicAddress):
+        self.ownerName = ownerName
+        self.publicAddress = publicAddress
+        self.creationTime = datetime.now().strftime("%H:%M:%S")
 
-# Mining section.
-x = []
-y = []
-for i in range(50):
-    initialTime = datetime.now()
-    block1.handleTransaction("person1") # Mining reward + 0.2
-    finalTime = datetime.now() - initialTime
-    x.append(block1.getBalance("person1", 0))
-    y.append(finalTime.total_seconds())
-    if len(x) > 2:
-         x[len(x) - 1] += x[len(x) - 2]
-         y[len(x) - 1] += y[len(x) - 2]
+    def generatePrivateKey(self):
+        newhash = "safasd"
+        self.privateAddress = sha256(newhash.encode('utf-8')).hexdigest()
+        # Use RSA here
+    def getPrivateKey(self):
+        return self.privateAddress    
 
-block1.addTransaction(transaction("person1", "person2", 10))
-block1.handleTransaction("person1") # Mining reward + 0.2
-block1.getBalance("person1", 0) # person1, available coins
-block1.getBalance("person2", 0) # person2, available coins
-# Reward rate
-plt.plot(x, y)
-plt.xlabel("Mining reward")
-plt.ylabel("Time")
-plt.show()
+    def updateTransactions(self, blockchain):
+        coins = blockchain.getBalance(self.ownerName, 1)
+        return f'Coins in the wallet: {coins}'   
+
+
+block1 = blockchain(2,0.2) # Mining Difficulty and reward
 
 
