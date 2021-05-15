@@ -15,18 +15,18 @@ class block():
     blockMineSize = 0
     hashDifficulty = 0
     validationTime = None
-    blockTransaction = []
+    blockTransactions = []
     # Each block has its unique hash string which is being generated with all essential informations in the block.
-    def __init__(self, previousBlockHash, hashDifficulty, blockTransaction):
+    def __init__(self, previousBlockHash, hashDifficulty, blockTransactions):
         self.hashDifficulty = hashDifficulty
         self.previousBlockHash = previousBlockHash
-        self.blockTransaction = blockTransaction
+        self.blockTransactions = blockTransactions
         self.validationTime = datetime.now().strftime("%H:%M:%S")
         self.blockHash = self.generateBlockHash() 
         self.proofOfWork()
 
     def generateBlockHash(self):
-        newhash = self.previousBlockHash + self.validationTime + str(self.blockTransaction) + str(self.blockMineSize)
+        newhash = self.previousBlockHash + self.validationTime + str(self.blockTransactions) + str(self.blockMineSize)
         return sha256(newhash.encode('utf-8')).hexdigest()
 
     # This is the mining section. It generates hashes according to the difficulty and guarantees the security of the blockchain with the work done.  
@@ -78,9 +78,9 @@ class blockchain():
             self.lastBlockLog = f"Insufficient coins in the source! {newTransaction.source} needs: {newTransaction.coins - transactionCoins}"
             print(self.lastBlockLog)
             return False
-
-        self.transactions.append(newTransaction)
-        return True
+        else:
+            self.transactions.append(newTransaction)
+            return True
 
     def forceTransaction(self, newTransaction):
         print(f"Transaction is forced. {newTransaction.coins} added to {newTransaction.destination}")
@@ -100,11 +100,11 @@ class blockchain():
     def getBalance(self, addressofBalance, opt):
         availableCoins = 0
         for i in range(len(self.blockchain)):
-            for j in range(len(self.blockchain[i].blockTransaction)):
-                if self.blockchain[i].blockTransaction[j].destination == addressofBalance:
-                    availableCoins += self.blockchain[i].blockTransaction[j].coins
-                elif self.blockchain[i].blockTransaction[j].source == addressofBalance:   
-                    availableCoins -= self.blockchain[i].blockTransaction[j].coins
+            for j in range(len(self.blockchain[i].blockTransactions)):
+                if self.blockchain[i].blockTransactions[j].destination == addressofBalance:
+                    availableCoins += self.blockchain[i].blockTransactions[j].coins
+                if self.blockchain[i].blockTransactions[j].source == addressofBalance:   
+                    availableCoins -= self.blockchain[i].blockTransactions[j].coins
 
         if opt == 0:
              print(f"{addressofBalance}, available coins: {availableCoins}") 
@@ -149,7 +149,26 @@ class wallet():
         coins = blockchain.getBalance(self.ownerName, 1)
         return f'Coins in the wallet: {coins}'   
 
+class database():
+    blockchain = None
+    wallets = []
 
-block1 = blockchain(2,0.2) # Mining Difficulty and reward
+    def __init__(self, blockchain, wallets):  
+        self.wallets = wallets 
+        self.blockchain = blockchain   
+
+    def saveDatabase(self):
+        database1 = open('database1','w')
+
+        for i in range(len(self.wallets)):
+            print(self.wallets[i].publicAddress + '+' + self.wallets[i].privateAddress + '\n')
+            database1.write(self.wallets[i].publicAddress + '+' + self.wallets[i].privateAddress + '\n')
+
+        database1.close()    
+
+    def readDatabase(self):
+        return True
+
+block1 = blockchain(4,0.2) # Mining Difficulty and reward
 
 

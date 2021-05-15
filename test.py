@@ -5,7 +5,7 @@ import string
 import matplotlib.pyplot as plt
 from hashlib import sha256
 
-from blockchain import *
+from blockchain import * 
 
 block1 = blockchain(2,0.2) # Mining Difficulty and reward
 #block1.forceTransaction(transaction("null", "person1", 100))
@@ -31,6 +31,13 @@ block1.getBalance("person2", 0) # person2, available coins
 wallet1 = wallet("person1", "null")
 wallet1.updateTransactions(block1)
 
+wallet2 = wallet("person2", "null")
+wallet2.updateTransactions(block1)
+
+wallets = [wallet1, wallet2]
+
+database1 = database(block1, wallets)
+database1.saveDatabase()
 # Reward rate
 plt.plot(x, y)
 plt.xlabel("Mining reward")

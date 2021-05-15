@@ -75,6 +75,7 @@ def onCreateWallet():
         publicName.insert(0, newpublicName)
         privateKey.insert(0, newWallet.getPrivateKey())
         messagebox.showinfo("Success!",f"Wallet is created! Please don't forget your public and private keys!\nPublic key = {newWallet.publicAddress}\nPrivate key = {newWallet.getPrivateKey()}", command = subwindow.destroy())
+        onLogin()
         # Force transaction 
         #block1.forceTransaction(transaction("null", newpublicName, 100))
 
@@ -149,38 +150,53 @@ def onLogin():
     balanceLabel = Label(tab1, textvariable = getBalance)
     balanceLabel.place(x=20, y=110)
 
-    miningFlag = True
+    balanceLabel = Label(tab3, textvariable = getBalance)
+    balanceLabel.place(x=10, y=110)
+
+    
     def onMining():     
-      #  stopButton = Button(tab3, text="Stop Mining!", command = stopMining)
-      #  stopButton.place(x=130, y=10) 
-        getBalance.set(wallets[index].updateTransactions(block1))
-        balanceLabel = Label(tab3, textvariable = getBalance)
-        balanceLabel.place(x=60, y=110)
-
-        def stopMining():
-            miningFlag = False
-            #thread.join()
-        stopButton = Button(tab3, text="Stop Mining!",command = stopMining) 
-        stopButton.place(x=130, y=10) 
-
+        miningProgress = ttk.Progressbar(tab3, orient = HORIZONTAL, length = 250, mode = "determinate")
+        miningProgress.place(x=20, y=150)
+        process = IntVar()
         def miningLoop():
-            global logIndex
-            for i in range(1):    
+            for i in range(int(miningAmount.get())): 
                 block1.handleTransaction(wallets[index].publicAddress) # Mining reward + 0.2
                 block1.getBalance(wallets[index].publicAddress, 0) # person1, available coins
                 getBalance.set(wallets[index].updateTransactions(block1))
+                process.set(int((i + 1) / int(miningAmount.get()) * 100))
+                miningProgress['value'] = int((i + 1) / int(miningAmount.get()) * 100)
+                miningProgress.update_idletasks()
+                
+            miningCompletedLabel.configure(text = "Completed!")
+            miningLabel.destroy()
+            miningCompletedLabel.destroy()
 
            # logs.insert(INSERT, f'{logIndex}. {int(transactionEntry2.get())} coins transferred from {wallets[index].publicAddress} to {transactionEntry1.get()}\n')
-            #logIndex += 1    
-                  
-        
+            #logIndex += 1 
+            #miningCompletedLabel. 
         thread = threading.Thread(target=miningLoop)
         thread.daemon = True 
-        thread.run()
- 
+        thread.start()
+
+        miningCompletedLabel = Label(tab3, text= "%")
+        miningCompletedLabel.place(x=295, y=150)
+        miningLabel = Label(tab3, textvariable=process) 
+        miningLabel.place(x=275, y=150)
+
+              
+
+    miningLabel1 = Label(tab3, text="Enter the public address for rewards: ")
+    miningLabel1.place(x=10, y=10)
+    miningAddress = Entry(tab3, width=15)
+    miningAddress.place(x=310, y=10)
+
+    miningLabel2 = Label(tab3, text="Enter the amount of coins you want to farm: ")
+    miningLabel2.place(x=10, y=40)
+    miningAmount = Entry(tab3, width=15)
+    miningAmount.place(x=310, y=40)
 
     miningButton = Button(tab3, text="Start Mining!", command = onMining)
-    miningButton.place(x=10, y=10)
+    miningButton.place(x=350, y=90)
     
 
 loginButton = Button(tab1, text = "Login", command = onLogin)
