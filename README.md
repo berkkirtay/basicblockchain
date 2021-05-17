@@ -10,7 +10,6 @@ I am still working on this.
 
 ### Wallet Creation
 ![Enc1](https://github.com/trantorberk/basicblockchain/blob/main/src/gui-shots/shot1.png)
-![Enc1](https://github.com/trantorberk/basicblockchain/blob/main/src/gui-shots/shot2.png) 
 
 ### Transactions
 ![Enc1](https://github.com/trantorberk/basicblockchain/blob/main/src/gui-shots/shot3.png) 

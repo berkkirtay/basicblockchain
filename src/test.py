@@ -28,19 +28,20 @@ block1.handleTransaction("person1") # Mining reward + 0.2
 block1.getBalance("person1", 0) # person1, available coins
 block1.getBalance("person2", 0) # person2, available coins
 
-wallet1 = wallet("person1", "null")
+wallet1 = wallet("person1", "person1")
 wallet1.updateTransactions(block1)
 
-wallet2 = wallet("person2", "null")
+wallet2 = wallet("person2", "person2")
 wallet2.updateTransactions(block1)
 
 wallets = [wallet1, wallet2]
 
 database1 = database(block1, wallets)
 database1.saveDatabase()
+
 # Reward rate
-plt.plot(x, y)
-plt.xlabel("Mining reward")
-plt.ylabel("Time")
-plt.show()
+#plt.plot(x, y)
+#plt.xlabel("Mining reward")
+#plt.ylabel("Time")
+#plt.show()
 

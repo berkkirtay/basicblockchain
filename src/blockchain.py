@@ -137,13 +137,15 @@ class wallet():
         self.ownerName = ownerName
         self.publicAddress = publicAddress
         self.creationTime = datetime.now().strftime("%H:%M:%S")
+        self.generatePrivateKey()
 
     def generatePrivateKey(self):
         newhash = "safasd"
         self.privateAddress = sha256(newhash.encode('utf-8')).hexdigest()
         # Use RSA here
+
     def getPrivateKey(self):
-        return self.privateAddress    
+        return self.privateAddress       
 
     def updateTransactions(self, blockchain):
         coins = blockchain.getBalance(self.ownerName, 1)
@@ -152,17 +154,29 @@ class wallet():
 class database():
     blockchain = None
     wallets = []
+    creationDate = None
 
     def __init__(self, blockchain, wallets):  
         self.wallets = wallets 
-        self.blockchain = blockchain   
+        self.blockchain = blockchain  
+        self.creationDate = datetime.now().strftime("%H:%M:%S")
 
     def saveDatabase(self):
         database1 = open('database1','w')
-
+        database1.write(f'#{self.creationDate}\n')
+        database1.write('#Wallets:\n')
         for i in range(len(self.wallets)):
-            print(self.wallets[i].publicAddress + '+' + self.wallets[i].privateAddress + '\n')
-            database1.write(self.wallets[i].publicAddress + '+' + self.wallets[i].privateAddress + '\n')
+            database1.write(self.wallets[i].publicAddress + ' - ' + self.wallets[i].privateAddress+ '\n')
+
+        database1.write('#Blockchain Data:\n')   
+        database1.write(f'{self.blockchain.hashDifficulty}, {self.blockchain.miningReward}\n')
+        for i in range(len(self.blockchain.blockchain)):
+            database1.write(f'{i + 1}. Block\n')  
+            database1.write(f'{self.blockchain.blockchain[i].previousBlockHash} - {self.blockchain.blockchain[i].blockHash}\n ')
+            database1.write('Block Transactions:\n')
+            for j in range(len(self.blockchain.blockchain[i].blockTransactions)):
+                database1.write(f's: {self.blockchain.blockchain[i].blockTransactions[j].source}, d: {self.blockchain.blockchain[i].blockTransactions[j].destination}, coins= {self.blockchain.blockchain[i].blockTransactions[j].coins}\n')
+   # validationTime = None
 
         database1.close()    
 

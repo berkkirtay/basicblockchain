@@ -1,0 +1,54 @@
+#18:06:28
+#Wallets:
+person1 - 9a13f13661d68b0277d910ab50cf0e4fa4a6531ed435d3db5ab6327365c6a33d
+person2 - 9a13f13661d68b0277d910ab50cf0e4fa4a6531ed435d3db5ab6327365c6a33d
+#Blockchain Data:
+2, 0.2
+1. Block
+463fd9f42a5bae3f66a90acebf6214947c54aef0ba69437828935de65e538c69 - 4dba885000efa693215baa62b04822b4207add82eaa478a69930ea9ab81ef100
+ Block Transactions:
+s: null, d: null, coins= 0
+2. Block
+4dba885000efa693215baa62b04822b4207add82eaa478a69930ea9ab81ef100 - dce8ff2d88e80a8b322fa74fe8b479d0cf4db8746a018f4fb161785381aae200
+ Block Transactions:
+s: null, d: null, coins= 0
+3. Block
+dce8ff2d88e80a8b322fa74fe8b479d0cf4db8746a018f4fb161785381aae200 - d840eeb676d77f18d039d151f45c31fa86a593758c922c58f458aeb85e315200
+ Block Transactions:
+s: null, d: person1, coins= 0.2
+4. Block
+d840eeb676d77f18d039d151f45c31fa86a593758c922c58f458aeb85e315200 - 833058faee4ece787e08176121dfbe6b31be250540d6e8f66ae3adff9a21cc00
+ Block Transactions:
+s: null, d: person1, coins= 0.2
+5. Block
+833058faee4ece787e08176121dfbe6b31be250540d6e8f66ae3adff9a21cc00 - 615ead0bfcd3c9374679009bd216d4edb4efaed62fe427845eb8f1f5b1c12600
+ Block Transactions:
+s: null, d: person1, coins= 0.2
+6. Block
+615ead0bfcd3c9374679009bd216d4edb4efaed62fe427845eb8f1f5b1c12600 - cc7abe6441d3c12648a1fd710a7d170ad09e9f55a4db4d48370f9bc1ff0d7900
+ Block Transactions:
+s: null, d: person1, coins= 0.2
+7. Block
+cc7abe6441d3c12648a1fd710a7d170ad09e9f55a4db4d48370f9bc1ff0d7900 - 15b4a7a1a3fb9d811b910cf7f281c23b15f3fc61ae23d63114e27608a573cf00
+ Block Transactions:
+s: null, d: person1, coins= 0.2
+8. Block
+15b4a7a1a3fb9d811b910cf7f281c23b15f3fc61ae23d63114e27608a573cf00 - c88c9a891762a0a95958b815a0da2df47e0fca18e526554bf08b204d5399dc00
+ Block Transactions:
+s: null, d: person1, coins= 0.2
+9. Block
+c88c9a891762a0a95958b815a0da2df47e0fca18e526554bf08b204d5399dc00 - 9becbf9660371095b538a5d4b211770ca3ae1ea5d075962f220b541ba2d04e00
+ Block Transactions:
+s: null, d: person1, coins= 0.2
+10. Block
+9becbf9660371095b538a5d4b211770ca3ae1ea5d075962f220b541ba2d04e00 - 52610451ad0daa26b2644b44c29888608453d4a593c6a6f2b12ea210bbbe4c00
+ Block Transactions:
+s: null, d: person1, coins= 0.2
+11. Block
+52610451ad0daa26b2644b44c29888608453d4a593c6a6f2b12ea210bbbe4c00 - 802fc7865f643dab4cd014736bda7a30f07a40bb88477cc4f251fc73b9f6fe00
+ Block Transactions:
+s: null, d: person1, coins= 0.2
+12. Block
+802fc7865f643dab4cd014736bda7a30f07a40bb88477cc4f251fc73b9f6fe00 - df5f650e0df7298b30c0782f2b89ca5b59fd77dd9d6bf035a9e9e68e51bcec00
+ Block Transactions:
+s: null, d: person1, coins= 0.2

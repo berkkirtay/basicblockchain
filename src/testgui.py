@@ -159,12 +159,12 @@ def onLogin():
         miningProgress.place(x=20, y=150)
         process = IntVar()
         def miningLoop():
-            for i in range(int(miningAmount.get())): 
-                block1.handleTransaction(wallets[index].publicAddress) # Mining reward + 0.2
+            for i in range(int(int(miningAmount.get()) / block1.miningReward) + 1): 
+                block1.handleTransaction(str(miningAddress.get())) # Mining reward + 0.2 / wallets[index].publicAddress
                 block1.getBalance(wallets[index].publicAddress, 0) # person1, available coins
                 getBalance.set(wallets[index].updateTransactions(block1))
-                process.set(int((i + 1) / int(miningAmount.get()) * 100))
-                miningProgress['value'] = int((i + 1) / int(miningAmount.get()) * 100)
+                process.set(int((i + 1) / (int(miningAmount.get())  / block1.miningReward) * 100))
+                miningProgress['value'] = int((i + 1) / (int(miningAmount.get())  / block1.miningReward) * 100)
                 miningProgress.update_idletasks()
                 
             miningCompletedLabel.configure(text = "Completed!")
