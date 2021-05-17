@@ -7,6 +7,7 @@ from hashlib import sha256
 
 from blockchain import * 
 
+
 block1 = blockchain(2,0.2) # Mining Difficulty and reward
 #block1.forceTransaction(transaction("null", "person1", 100))
 
@@ -38,6 +39,7 @@ wallets = [wallet1, wallet2]
 
 database1 = database(block1, wallets)
 database1.saveDatabase()
+database1.loadDatabase()
 
 # Reward rate
 #plt.plot(x, y)

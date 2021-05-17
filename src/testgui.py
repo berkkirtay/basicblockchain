@@ -13,7 +13,8 @@ from hashlib import sha256
 from blockchain import *
 
 
-block1 = block1
+
+block1 = blockchain(4,0.2)# block1
 
 wallets = []
 
@@ -117,6 +118,8 @@ def onTransaction():
     else:
         logs.insert(INSERT, f'{logIndex}. Transaction is pending: from {wallets[index].publicAddress} to {transactionEntry1.get()}, amount={int(transactionEntry2.get())}\n')    
     logIndex += 1
+    global getBalance
+    getBalance.set(wallets[index].updateTransactions(block1))
     
 
 transactionButton = Button(tab2, text = "Send", command=onTransaction)

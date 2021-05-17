@@ -32,7 +32,7 @@ class block():
     # This is the mining section. It generates hashes according to the difficulty and guarantees the security of the blockchain with the work done.  
     def proofOfWork(self):
         initialTime = datetime.now()
-        while self.blockHash[len(self.blockHash) - self.hashDifficulty:] != "0" * self.hashDifficulty:
+        while self.blockHash[len(self.blockHash) - self.hashDifficulty:] != "a" * self.hashDifficulty:
             self.blockHash = self.generateBlockHash()
             self.blockMineSize += 1
 
@@ -63,7 +63,7 @@ class blockchain():
 
     def newBlock(self, transactions):
         self.blockchain.append(block(self.getCurrentBlock().blockHash, self.hashDifficulty, transactions))
-        block1.validateBlockChain()
+        self.validateBlockChain()
 
     def validateBlockChain(self):
         for i in range(len(self.blockchain) - 1):
@@ -80,6 +80,7 @@ class blockchain():
             return False
         else:
             self.transactions.append(newTransaction)
+            self.handleTransaction("null") # Attention here!
             return True
 
     def forceTransaction(self, newTransaction):
@@ -171,18 +172,27 @@ class database():
         database1.write('#Blockchain Data:\n')   
         database1.write(f'{self.blockchain.hashDifficulty}, {self.blockchain.miningReward}\n')
         for i in range(len(self.blockchain.blockchain)):
-            database1.write(f'{i + 1}. Block\n')  
-            database1.write(f'{self.blockchain.blockchain[i].previousBlockHash} - {self.blockchain.blockchain[i].blockHash}\n ')
+            database1.write(f'# {i + 1}. Block\n')  
+            database1.write(f'{self.blockchain.blockchain[i].previousBlockHash} - {self.blockchain.blockchain[i].blockHash}\n')
             database1.write('Block Transactions:\n')
             for j in range(len(self.blockchain.blockchain[i].blockTransactions)):
                 database1.write(f's: {self.blockchain.blockchain[i].blockTransactions[j].source}, d: {self.blockchain.blockchain[i].blockTransactions[j].destination}, coins= {self.blockchain.blockchain[i].blockTransactions[j].coins}\n')
-   # validationTime = None
-
+       
         database1.close()    
+
+    def loadDatabase(self):
+        database1 = open('database1', 'r')
+        lines = database1.readlines()
+        database1.close()
+
+        for i in lines:
+            if i.find('#') != -1:
+                print(f'{i.strip()}')
+
 
     def readDatabase(self):
         return True
 
-block1 = blockchain(4,0.2) # Mining Difficulty and reward
+#block1 = blockchain(4,0.2) # Mining Difficulty and reward
 
 
