@@ -8,6 +8,7 @@ from datetime import datetime
 import random
 import string
 import matplotlib.pyplot as plt
+import pickle
 
 class block():
     previousBlockHash = ''
@@ -152,46 +153,32 @@ class wallet():
         coins = blockchain.getBalance(self.ownerName, 1)
         return f'Coins in the wallet: {coins}'   
 
+
 class database():
     blockchain = None
     wallets = []
     creationDate = None
 
-    def __init__(self, blockchain, wallets):  
-        self.wallets = wallets 
-        self.blockchain = blockchain  
+    def __init__(self):
         self.creationDate = datetime.now().strftime("%H:%M:%S")
 
-    def saveDatabase(self):
-        database1 = open('database1','w')
-        database1.write(f'#{self.creationDate}\n')
-        database1.write('#Wallets:\n')
-        for i in range(len(self.wallets)):
-            database1.write(self.wallets[i].publicAddress + ' - ' + self.wallets[i].privateAddress+ '\n')
+    def saveDatabase(self, blockchain, wallets):    
+        save1 = open('blockchainData1', 'wb')
+        pickle.dump(blockchain, save1)
+        save2 = open('walletData1', 'wb')
+        pickle.dump(wallets, save2)
 
-        database1.write('#Blockchain Data:\n')   
-        database1.write(f'{self.blockchain.hashDifficulty}, {self.blockchain.miningReward}\n')
-        for i in range(len(self.blockchain.blockchain)):
-            database1.write(f'# {i + 1}. Block\n')  
-            database1.write(f'{self.blockchain.blockchain[i].previousBlockHash} - {self.blockchain.blockchain[i].blockHash}\n')
-            database1.write('Block Transactions:\n')
-            for j in range(len(self.blockchain.blockchain[i].blockTransactions)):
-                database1.write(f's: {self.blockchain.blockchain[i].blockTransactions[j].source}, d: {self.blockchain.blockchain[i].blockTransactions[j].destination}, coins= {self.blockchain.blockchain[i].blockTransactions[j].coins}\n')
-       
-        database1.close()    
+        save1.close()
+        save2.close()
 
-    def loadDatabase(self):
-        database1 = open('database1', 'r')
-        lines = database1.readlines()
-        database1.close()
+    def loadDatabase(self):    
+        load1 = open('blockchainData1', 'rb')
+        self.blockchain = pickle.load(load1)
+        load2 = open('walletData1', 'rb')
+        self.wallets= pickle.load(load2)
 
-        for i in lines:
-            if i.find('#') != -1:
-                print(f'{i.strip()}')
-
-
-    def readDatabase(self):
-        return True
+        load1.close()
+        load2.close()
 
 #block1 = blockchain(4,0.2) # Mining Difficulty and reward
 

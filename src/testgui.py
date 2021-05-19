@@ -10,13 +10,40 @@ import string
 import matplotlib.pyplot as plt
 from hashlib import sha256
 
+
 from blockchain import *
+from p2pserver import *
 
-
-
-block1 = blockchain(4,0.2)# block1
-
+block1 = None # block1
 wallets = []
+
+newDatabase = database()
+def load():
+    global block1, wallets
+    newDatabase.loadDatabase()
+    block1 = newDatabase.blockchain
+    wallets = newDatabase.wallets
+try:
+    load()
+except:
+    print("New blockchain is created.")
+    block1 = blockchain(1,0.2)
+
+   
+#block1 = None
+#address = socket.gethostbyname(socket.gethostname()) # '127.0.0.1'
+#newNetwork = p2p(block1, address, 8000)
+
+#block1 = newNetwork.blockchain
+#def refreshNetwork():
+    #global block1
+    #while True:
+        #newNetwork.refreshBlockchain(block1)
+        #time.sleep(2)
+
+#p2pThread = threading.Thread(target=refreshNetwork)
+#p2pThread.start() #####################################################################################################
+
 
 root = Tk()
 root.title("Coin GUI")
@@ -27,6 +54,7 @@ tab1 = ttk.Frame(tab_control)
 tab2 = ttk.Frame(tab_control)
 tab3 = ttk.Frame(tab_control)
 tab_control.add(tab1, text='My Wallet')
+
 
 
 tab_control.pack(expand=1, fill='both')
@@ -76,7 +104,6 @@ def onCreateWallet():
         publicName.insert(0, newpublicName)
         privateKey.insert(0, newWallet.getPrivateKey())
         messagebox.showinfo("Success!",f"Wallet is created! Please don't forget your public and private keys!\nPublic key = {newWallet.publicAddress}\nPrivate key = {newWallet.getPrivateKey()}", command = subwindow.destroy())
-        onLogin()
         # Force transaction 
         #block1.forceTransaction(transaction("null", newpublicName, 100))
 
@@ -120,6 +147,10 @@ def onTransaction():
     logIndex += 1
     global getBalance
     getBalance.set(wallets[index].updateTransactions(block1))
+    try:
+        load()
+    except:    
+        newDatabase.saveDatabase(block1, wallets) #####################################################################################################
     
 
 transactionButton = Button(tab2, text = "Send", command=onTransaction)
@@ -133,7 +164,7 @@ def onLogin():
         if publicName.get() == wallets[i].publicAddress:
             index = i
             break
-    currentWallet = wallets[i]
+
     if index == -1 or wallets[index].getPrivateKey() != privateKey.get():
          messagebox.showerror("Error!","Wallet Credentials error!")
          return -1
@@ -185,7 +216,10 @@ def onLogin():
         miningCompletedLabel.place(x=295, y=150)
         miningLabel = Label(tab3, textvariable=process) 
         miningLabel.place(x=275, y=150)
-
+        try:
+            load()
+        except:    
+            newDatabase.saveDatabase(block1, wallets) #####################################################################################################
               
 
     miningLabel1 = Label(tab3, text="Enter the public address for rewards: ")

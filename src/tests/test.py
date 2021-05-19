@@ -6,11 +6,11 @@ import matplotlib.pyplot as plt
 from hashlib import sha256
 
 from blockchain import * 
+from p2pserver import *
 
 
 block1 = blockchain(2,0.2) # Mining Difficulty and reward
 #block1.forceTransaction(transaction("null", "person1", 100))
-
 # Mining section.
 x = []
 y = []
@@ -37,13 +37,15 @@ wallet2.updateTransactions(block1)
 
 wallets = [wallet1, wallet2]
 
-database1 = database(block1, wallets)
-database1.saveDatabase()
+database1 = database()
+database1.saveDatabase(block1, wallets)
 database1.loadDatabase()
 
+
+
 # Reward rate
-#plt.plot(x, y)
-#plt.xlabel("Mining reward")
-#plt.ylabel("Time")
-#plt.show()
+plt.plot(x, y)
+plt.xlabel("Mining reward")
+plt.ylabel("Time")
+plt.show()
 
