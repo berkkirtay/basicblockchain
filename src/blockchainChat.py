@@ -9,6 +9,8 @@ from blockchain import *
 
 
 class blockchainChat(blockchain):
+    # We take advantage of the normal blockchain class implementation.
+    # Transactions are overridden by textTransactions and same thing goes for coins(texts) as well.
     texts = []
 
     def __init__(self, hashDifficulty, miningReward):

@@ -15,14 +15,15 @@ from blockchain import *
 from p2pserver import *
 
 block1 = None # block1
-wallets = []
+
+wallets1 = []
 
 newDatabase = database()
 def load():
-    global block1, wallets
+    global block1, wallets1, newDatabase
     newDatabase.loadDatabase()
     block1 = newDatabase.blockchain
-    wallets = newDatabase.wallets
+    wallets1 = newDatabase.wallets
 try:
     load()
 except:
@@ -100,13 +101,13 @@ def onCreateWallet():
         newWallet = wallet(newpublicName, newpublicName) # Handle public address here later!!
         newWallet.generatePrivateKey()
         newWallet.updateTransactions(block1)
-        wallets.append(newWallet) # hash(getPublicName())
+        wallets1.append(newWallet) # hash(getPublicName())
         publicName.insert(0, newpublicName)
         privateKey.insert(0, newWallet.getPrivateKey())
         messagebox.showinfo("Success!",f"Wallet is created! Please don't forget your public and private keys!\nPublic key = {newWallet.publicAddress}\nPrivate key = {newWallet.getPrivateKey()}", command = subwindow.destroy())
         # Force transaction 
         #block1.forceTransaction(transaction("null", newpublicName, 100))
-
+        newDatabase.saveDatabase(block1, wallets1) #####################################################################################################
     registerButton = Button(subwindow, text="Enter", command = createNewWallet)
     registerButton.place(x=90,y=90)  
 
@@ -139,18 +140,16 @@ logs.place(x=6, y=170)
 
  # There are bugs on transactions!!
 def onTransaction():
-    global logIndex
-    if block1.addTransaction(transaction(wallets[index].publicAddress, transactionEntry1.get(), int(transactionEntry2.get()))) == False:
+    load()
+    global index, logIndex
+    if block1.addTransaction(transaction(wallets1[index].publicAddress, transactionEntry1.get(), int(transactionEntry2.get()))) == False:
         logs.insert(INSERT, f'{logIndex}. {block1.lastBlockLog}\n')
     else:
-        logs.insert(INSERT, f'{logIndex}. Transaction is pending: from {wallets[index].publicAddress} to {transactionEntry1.get()}, amount={int(transactionEntry2.get())}\n')    
+        logs.insert(INSERT, f'{logIndex}. Transaction is pending: from {wallets1[index].publicAddress} to {transactionEntry1.get()}, amount={int(transactionEntry2.get())}\n')    
     logIndex += 1
     global getBalance
-    getBalance.set(wallets[index].updateTransactions(block1))
-    try:
-        load()
-    except:    
-        newDatabase.saveDatabase(block1, wallets) #####################################################################################################
+    getBalance.set(wallets1[index].updateTransactions(block1)) 
+    newDatabase.saveDatabase(block1, wallets1) #####################################################################################################
     
 
 transactionButton = Button(tab2, text = "Send", command=onTransaction)
@@ -160,12 +159,12 @@ transactionButton.place(x=350, y=130)
 index = -1
 def onLogin():
     global index
-    for i in range(len(wallets)):
-        if publicName.get() == wallets[i].publicAddress:
+    for i in range(len(wallets1)):
+        if publicName.get() == wallets1[i].publicAddress:
             index = i
             break
 
-    if index == -1 or wallets[index].getPrivateKey() != privateKey.get():
+    if index == -1 or wallets1[index].getPrivateKey() != privateKey.get():
          messagebox.showerror("Error!","Wallet Credentials error!")
          return -1
      
@@ -180,23 +179,34 @@ def onLogin():
     tab_control.add(tab3, text='Coin Mining')
 
     global getBalance
-    getBalance.set(wallets[index].updateTransactions(block1))
+    getBalance.set(wallets1[index].updateTransactions(block1))
     balanceLabel = Label(tab1, textvariable = getBalance)
     balanceLabel.place(x=20, y=110)
 
     balanceLabel = Label(tab3, textvariable = getBalance)
     balanceLabel.place(x=10, y=110)
 
-    
-    def onMining():     
+
+    def setBalance():
+        global index
+        while True:
+            getBalance.set(wallets1[index].updateTransactions(block1))
+            time.sleep(2)
+
+    balanceThread = threading.Thread(target=setBalance)
+    balanceThread.start()
+
+
+    def onMining():      
         miningProgress = ttk.Progressbar(tab3, orient = HORIZONTAL, length = 250, mode = "determinate")
         miningProgress.place(x=20, y=150)
         process = IntVar()
         def miningLoop():
+            load()
+            global index
             for i in range(int(int(miningAmount.get()) / block1.miningReward) + 1): 
                 block1.handleTransaction(str(miningAddress.get())) # Mining reward + 0.2 / wallets[index].publicAddress
-                block1.getBalance(wallets[index].publicAddress, 0) # person1, available coins
-                getBalance.set(wallets[index].updateTransactions(block1))
+                getBalance.set(wallets1[index].updateTransactions(block1))
                 process.set(int((i + 1) / (int(miningAmount.get())  / block1.miningReward) * 100))
                 miningProgress['value'] = int((i + 1) / (int(miningAmount.get())  / block1.miningReward) * 100)
                 miningProgress.update_idletasks()
@@ -204,6 +214,7 @@ def onLogin():
             miningCompletedLabel.configure(text = "Completed!")
             miningLabel.destroy()
             miningCompletedLabel.destroy()
+            newDatabase.saveDatabase(block1, wallets1) #####################################################################################################
 
            # logs.insert(INSERT, f'{logIndex}. {int(transactionEntry2.get())} coins transferred from {wallets[index].publicAddress} to {transactionEntry1.get()}\n')
             #logIndex += 1 
@@ -215,11 +226,7 @@ def onLogin():
         miningCompletedLabel = Label(tab3, text= "%")
         miningCompletedLabel.place(x=295, y=150)
         miningLabel = Label(tab3, textvariable=process) 
-        miningLabel.place(x=275, y=150)
-        try:
-            load()
-        except:    
-            newDatabase.saveDatabase(block1, wallets) #####################################################################################################
+        miningLabel.place(x=275, y=150) 
               
 
     miningLabel1 = Label(tab3, text="Enter the public address for rewards: ")
@@ -238,6 +245,7 @@ def onLogin():
 
 loginButton = Button(tab1, text = "Login", command = onLogin)
 loginButton.place(x=400, y=150)
+
 
 
 root.mainloop()

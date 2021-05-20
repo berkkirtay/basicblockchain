@@ -3,6 +3,7 @@
 # please check the potential bugs before using!
 
 from hashlib import sha256
+from os import error
 import numpy as np
 from datetime import datetime
 import random
@@ -127,7 +128,20 @@ class transaction():
         newHash = self.ssource + self.sdestination + str(self.scoins) + self.svalidationTime
         return sha256(newHash.encode('utf-8')).hexdigest()   
 
+class allWallets():
+    wallets = []
+    def __init__(self):
+        pass
 
+    def addWallet(self, newWallet):
+        for wallet in self.wallets:
+            if wallet.publicAddress == newWallet.publicAddress:
+                print("You can't use an already existed wallet name!")
+                return False
+
+        self.wallets.append(newWallet)
+        return True   
+        
 class wallet():
     ownerName = '' # aka source
     publicAddress = ''
@@ -175,7 +189,7 @@ class database():
         load1 = open('blockchainData1', 'rb')
         self.blockchain = pickle.load(load1)
         load2 = open('walletData1', 'rb')
-        self.wallets= pickle.load(load2)
+        self.wallets = pickle.load(load2)
 
         load1.close()
         load2.close()
