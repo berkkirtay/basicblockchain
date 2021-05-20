@@ -5,6 +5,9 @@ I am still working on this.
 ### Current components: 
 - A test script
 - Test GUI 
+- Basic database for blockchain and wallets
+- Basic chat program based on blockchain
+- P2p network for database transfer (haven't been tested yet)
 
 ## GUI Screenshots 
 
