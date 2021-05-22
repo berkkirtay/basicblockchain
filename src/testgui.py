@@ -5,19 +5,18 @@ from tkinter import scrolledtext
 import threading
 import numpy as np
 from datetime import datetime
-import random
-import string
+import time
 import matplotlib.pyplot as plt
 from hashlib import sha256
 
 
 from blockchain import *
-from p2pserver import *
+#from p2pserver import *
 
 block1 = None # block1
-
 wallets1 = []
 
+# Database will save and load after every transaction or mining operation.
 newDatabase = database()
 def load():
     global block1, wallets1, newDatabase
@@ -107,7 +106,7 @@ def onCreateWallet():
         messagebox.showinfo("Success!",f"Wallet is created! Please don't forget your public and private keys!\nPublic key = {newWallet.publicAddress}\nPrivate key = {newWallet.getPrivateKey()}", command = subwindow.destroy())
         # Force transaction 
         #block1.forceTransaction(transaction("null", newpublicName, 100))
-        newDatabase.saveDatabase(block1, wallets1) #####################################################################################################
+        newDatabase.saveDatabase(block1, wallets1) ########################################
     registerButton = Button(subwindow, text="Enter", command = createNewWallet)
     registerButton.place(x=90,y=90)  
 
@@ -140,7 +139,7 @@ logs.place(x=6, y=170)
 
  # There are bugs on transactions!!
 def onTransaction():
-    load()
+    load() ########################################
     global index, logIndex
     if block1.addTransaction(transaction(wallets1[index].publicAddress, transactionEntry1.get(), int(transactionEntry2.get()))) == False:
         logs.insert(INSERT, f'{logIndex}. {block1.lastBlockLog}\n')
@@ -149,7 +148,7 @@ def onTransaction():
     logIndex += 1
     global getBalance
     getBalance.set(wallets1[index].updateTransactions(block1)) 
-    newDatabase.saveDatabase(block1, wallets1) #####################################################################################################
+    newDatabase.saveDatabase(block1, wallets1) ########################################
     
 
 transactionButton = Button(tab2, text = "Send", command=onTransaction)
@@ -202,7 +201,7 @@ def onLogin():
         miningProgress.place(x=20, y=150)
         process = IntVar()
         def miningLoop():
-            load()
+            load() ########################################
             global index
             for i in range(int(int(miningAmount.get()) / block1.miningReward) + 1): 
                 block1.handleTransaction(str(miningAddress.get())) # Mining reward + 0.2 / wallets[index].publicAddress
@@ -214,7 +213,7 @@ def onLogin():
             miningCompletedLabel.configure(text = "Completed!")
             miningLabel.destroy()
             miningCompletedLabel.destroy()
-            newDatabase.saveDatabase(block1, wallets1) #####################################################################################################
+            newDatabase.saveDatabase(block1, wallets1) ########################################
 
            # logs.insert(INSERT, f'{logIndex}. {int(transactionEntry2.get())} coins transferred from {wallets[index].publicAddress} to {transactionEntry1.get()}\n')
             #logIndex += 1 

@@ -1,3 +1,5 @@
+# This script hasn't been done yet..
+
 from hashlib import new
 import socket
 import threading

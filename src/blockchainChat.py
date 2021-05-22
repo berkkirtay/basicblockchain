@@ -34,6 +34,7 @@ class blockchainChat(blockchain):
         work = len(self.transactions)
         self.newBlock(self.transactions)  
         self.transactions = []
+        # We need a different approach here for proof of work.
         #self.transactions.append(transaction("null", miningRewardAddress, self.miningReward * work))
         return True    
 
