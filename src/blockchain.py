@@ -20,7 +20,7 @@ class block():
     blockMineSize = 0
     hashDifficulty = 0
     validationTime = None
-    blockTransactionCapacity = 10
+    blockTransactionCapacity = 100
     blockTransactions = []
     # Each block has its unique hash string which is being generated
     # with all essential informations in the block.
@@ -69,22 +69,40 @@ class blockchain():
     def createGenesisBlock(self):
         randomKey = ''.join(random.choice(string.ascii_lowercase) for i in range(30))
         genericTransactions = [transaction("null", "null", 0)]
-        self.transactions = genericTransactions # First transaction of the blockchain.
+
+        # First transaction of the blockchain.
+        self.transactions = genericTransactions 
+        self.validationFlag = True
         return block(sha256(randomKey.encode('utf-8')).hexdigest(), self.hashDifficulty, genericTransactions)   
+
     def getCurrentBlock(self):
         return self.blockchain[len(self.blockchain) - 1]
 
     def newBlock(self, transactions):
+        self.validationFlag = self.validateBlockChain()   
         self.blockchain.append(block(self.getCurrentBlock().blockHash, self.hashDifficulty, transactions))
-        self.validateBlockChain()
 
     # For security reasons, we will need to validate our blockchain.
     def validateBlockChain(self):
         for i in range(len(self.blockchain) - 1):
             if self.blockchain[i].blockHash !=  self.blockchain[i + 1].previousBlockHash :
                 print("Blockchain isn't valid!!!!.\n") 
+                self.handleInvalidBlock()
                 return False      
         return True
+
+    def handleInvalidBlock(self):
+        while self.validationFlag == False:
+            try:
+                self.blockchain.pop()
+                print(f"Trying to recover the blockchain to the previous version. Last block index is {len(self.blockchain)}\n") 
+                self.validateBlockChain()
+            except:
+                print("There is no block left! Creating a new genesis block..")
+                self.blockchain = [self.createGenesisBlock()]
+                break
+        return
+
 
     # This function is responsible for adding transactions to
     # the blockchain and checking them if they are valid.
@@ -178,6 +196,7 @@ class wallet():
     ownerName = '' # aka source
     publicAddress = ''
     privateAddress = ''
+    privateKeys = []
     coins = 0
     transactions = []
     creationTime = None
@@ -185,17 +204,26 @@ class wallet():
         self.ownerName = ownerName
         self.publicAddress = publicAddress
         self.creationTime = datetime.now().strftime("%H:%M:%S")
+        self.randomWordGenerator()
         self.generatePrivateKey()
 
     def generatePrivateKey(self):
-        newhash = "safasd"
-        self.privateAddress = sha256(newhash.encode('utf-8')).hexdigest()
+        self.privateAddress = sha256(self.privateKeys[0].encode('utf-8')).hexdigest()
+        print(f'New private key is generated for this wallet, ({self.ownerName}) \n')
+        print('Please write down your private keys in order to keep an access to your transactions and wallet.')
+        print(f'Your private keys: {self.privateKeys}\n');
         # Use RSA here
 
-    def getPrivateKey(self):
-        return self.privateAddress       
+    # This random generator should be improved later.
+    def randomWordGenerator(self):
+        self.privateKeys.append(self.ownerName)
+        for i  in range(9):
+            tempStr = ''
+            for j in range(10):
+                tempStr += random.choice(string.ascii_lowercase)
+            self.privateKeys.append(tempStr)         
 
-    # Updating the wallet's owner balance.
+    # Updating the wallet's owner balance.  
     def updateTransactions(self, blockchain):
         coins = blockchain.getBalance(self.ownerName, 1)
         return f'Coins in the wallet: {coins}'   
