@@ -1,0 +1,18 @@
+<nav>
+    <ul class="nav">
+        <li class="nav"><a href="/">Home</a></li>
+        <li class="nav"><a href="/users">Users</a></li>
+        <li id="createWalletButton"><a href="/createWallet">Create Wallet</a></li>
+        <li id="myWalletButton" style="display: none;"><a href=<%= "/users/" + user.name %>>My wallet</a></li>
+        <li class="nav"><a href="/transactions">Transactions</a></li>
+        <li id="exitButton" style="display: none;"><a href="/exit">Exit</a></li>
+    </ul>
+
+    <% if(isUserSpecified===true) {%>
+        <script>
+          document.getElementById("exitButton").style.display = "block";
+          document.getElementById("myWalletButton").style.display = "block";
+          document.getElementById("createWalletButton").style.display = "none";
+        </script>
+        <% } %>
+</nav>

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+    <%- include("head.html") %>
+<body>
+    <%- include("nav.html") %>
+    
+      <div class="transaction">
+        <h2>New Transaction</h2>
+        <h2>Your balance: <%= coins %> coins</h2>
+        <form action="/transactions" method="POST">
+          <label class="transactions">Public address:</label>
+          <input type="text" class="transactions" name="transactions[publicAddress]" required>
+          <label class="transactions">Coin Amount</label>
+          <input type="text" class="transactions" name="transactions[coinAmount]" required>
+          <button>Send</button>
+        </form>
+        <% if(isUserSpecified===true) {%>
+          <script>
+            document.getElementById("exitButton").style.display = "block";
+          </script>
+          <% } %>
+      </div>
+</body> 
+</html>
