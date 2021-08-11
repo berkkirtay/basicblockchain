@@ -2,17 +2,22 @@
 # There can be many bugs or wrong approaches,
 # please check the potential bugs before using!
 
-from hashlib import sha256
-from os import error
+
+from hashlib import sha1, sha256
+from os import error, system
 from datetime import datetime
 import random
 import string
 import pickle
+import rsa
+
+(RSA_PublicKey, RSA_PrivateKey) = rsa.newkeys(512, 4)
+print(RSA_PrivateKey)
+
 
 # Every block keeps previous block's hash for validation of blockchain.
 # We create a hash code based on previous block's hash,
 # block's validation time and transactions.
-
 
 class block():
     previousBlockHash = ''
@@ -42,9 +47,10 @@ class block():
     # and guarantees the security of the blockchain with the work done.
     # This section can be improved since continuous increments of blockMineSize
     # is a poor way to generate different hash every turn.
+
     def proofOfWork(self):
         initialTime = datetime.now()
-        while self.blockHash[len(self.blockHash) - self.hashDifficulty:] != "a" * self.hashDifficulty:
+        while self.blockHash[len(self.blockHash) - self.hashDifficulty:] != "0" * self.hashDifficulty:
             self.blockHash = self.generateBlockHash()
             self.blockMineSize += 1
 
@@ -77,15 +83,18 @@ class blockchain():
         # First transaction of the blockchain.
         self.transactions = genericTransactions
         self.validationFlag = True
-        return block(sha256(randomKey.encode('utf-8')).hexdigest(), self.hashDifficulty, genericTransactions)
+        return block(sha256(
+            randomKey.encode('utf-8')).hexdigest(), self.hashDifficulty, genericTransactions)
 
     def getCurrentBlock(self):
         return self.blockchain[len(self.blockchain) - 1]
 
     def newBlock(self, transactions):
         self.validationFlag = self.validateBlockChain()
-        self.blockchain.append(
-            block(self.getCurrentBlock().blockHash, self.hashDifficulty, transactions))
+
+        if self.validationFlag == True:
+            self.blockchain.append(
+                block(self.getCurrentBlock().blockHash, self.hashDifficulty, transactions))
 
     # For security reasons, we will need to validate our blockchain.
     def validateBlockChain(self):
@@ -118,9 +127,15 @@ class blockchain():
             print(self.lastBlockLog)
             return False
         else:
+            if self.validateTransaction(newTransaction) == False:
+                return False
             self.transactions.append(newTransaction)
-            self.handleTransaction("null")  # Attention here!
+            # Activate this to get only one transaction per block.
+            # self.handleTransaction("null")
             return True
+
+    def addText(self, newText):
+        self.transactions.append(newText)
 
     def forceTransaction(self, newTransaction):
         print(
@@ -128,9 +143,20 @@ class blockchain():
         self.transactions.append(newTransaction)
         return True
 
-    # When there is pending transactions, those transactions
-    # should be handled by a miner. This is implemented in the
-    # function below.
+    def validateTransaction(self, newTransaction):
+        signer = digitalSignature()
+        transactionHash = signer.validateTransaction(
+            newTransaction.transactionSignature)
+
+        if transactionHash == newTransaction.transactionHash:
+            print('Transaction is validated!')
+            return True
+        return False
+
+        # When there is pending transactions, those transactions
+        # should be handled by a miner. This is implemented in the
+        # function below.
+
     def handleTransaction(self, miningRewardAddress):
         if len(self.transactions) == 0:
             return False
@@ -147,6 +173,9 @@ class blockchain():
             self.newBlock(self.transactions)
 
         self.transactions = []
+
+        # We can change "null" with the user
+        # who does the work.
         self.transactions.append(transaction(
             "null", miningRewardAddress, self.miningReward * work))
         return True
@@ -155,18 +184,23 @@ class blockchain():
     # with checking all transactions within the blockchain.
     def getBalance(self, addressofBalance):
         availableCoins = 0
+        # With try/catch block, we prevent chat and balance
+        # blocks to mix (We cannot mix ints and strings).
         for i in range(len(self.blockchain)):
             for j in range(len(self.blockchain[i].blockTransactions)):
-                if self.blockchain[i].blockTransactions[j].destination == addressofBalance:
-                    availableCoins += self.blockchain[i].blockTransactions[j].coins
-                if self.blockchain[i].blockTransactions[j].source == addressofBalance:
-                    availableCoins -= self.blockchain[i].blockTransactions[j].coins
+                try:
+                    if self.blockchain[i].blockTransactions[j].destination == addressofBalance:
+                        availableCoins += self.blockchain[i].blockTransactions[j].coins
+                    if self.blockchain[i].blockTransactions[j].source == addressofBalance:
+                        availableCoins -= self.blockchain[i].blockTransactions[j].coins
+                except:
+                    continue
 
         return availableCoins
 
+
 # Transaction class saves source and destination
 # of the transfers with a validation.
-
 
 class transaction():
     source = ''
@@ -174,18 +208,54 @@ class transaction():
     coins = 0
     validationTime = None
     transactionHash = ''
+    transactionSignature = ''
 
     def __init__(self, source, destination, coins):
         self.source = source
         self.destination = destination
         self.coins = coins
+        self.setTransaction()
+
+    def setTransaction(self):
         self.validationTime = datetime.now().strftime("%H:%M:%S")
-        self.transactionHash = self.generateTransactionHash()
+        self.generateTransactionHash()
+
+        signer = digitalSignature()
+        self.transactionSignature = signer.signTransaction(
+            self.transactionHash)
 
     def generateTransactionHash(self):
         newHash = self.source + self.destination + \
             str(self.coins) + self.validationTime
-        return sha256(newHash.encode('utf-8')).hexdigest()
+        self.transactionHash = sha1(newHash.encode('utf-8')).hexdigest()
+
+
+# We need digital signatures to validate our transactions.
+# We can use any asymetric encryption algorithm. For my
+# implementation, I will use RSA algorithm.
+# ----
+# For each transaction, we will encrypt thr transaction
+# hash and send it to the handler.
+# Handler will validate transaction by decrypting the
+# hash and compare it with the original transaction
+# hash. If they are same, then validation will be done.
+
+
+class digitalSignature:
+    def __init__(self):
+        pass
+
+    def signTransaction(self, transactionHash):
+        signedHashinBytes = rsa.encrypt(
+            transactionHash.encode('utf8'), RSA_PublicKey)
+
+        return signedHashinBytes
+
+    def validateTransaction(self, encryptedTransactionHash):
+        validatedHashinBytes = rsa.decrypt(
+            encryptedTransactionHash, RSA_PrivateKey)
+
+        return validatedHashinBytes.decode('utf8')
 
 
 class walletChecker():
