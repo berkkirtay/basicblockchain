@@ -1,16 +1,15 @@
 # Basic Blockchain Implementation 
 
-A functional blockchain implementation in python.
-Currently I am trying to implement a proper p2p network to transfer blockchain data between peers.
-In the time being, this implementation works locally (by saving and loading database files in the local folder)
+A functional blockchain implementation in python. I will keep improving this library as I learn more about blockchain technology.
+In the time being, this implementation works locally (by saving and loading database files in the local folder).
 
 ### Current components: 
-- A test script
-- Test GUI 
+- Blockchain library
+- Test GUI
 - Basic database for blockchain and wallets
 - Basic chat program based on blockchain
 - P2p network for database transfer (haven't been tested yet)
-- Basic web-api for wallet interface and transactions.
+- Basic web-api for wallet interface with transactions and chat.
 
 ## GUI Screenshots 
 
