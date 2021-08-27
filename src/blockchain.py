@@ -1,10 +1,33 @@
 # This is my first blockchain implementation.
 # There can be many bugs or wrong approaches,
 # please check the potential bugs before using!
+# Developed by Berk Kırtay
 
+'''
+MIT License
+
+Copyright (c) 2021 Berk Kırtay
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+'''
 
 from hashlib import sha1, sha256
-from os import error, system
 from datetime import datetime
 import random
 import string
@@ -12,7 +35,6 @@ import pickle
 import rsa
 
 (RSA_PublicKey, RSA_PrivateKey) = rsa.newkeys(512, 4)
-print(RSA_PrivateKey)
 
 
 # Every block keeps previous block's hash for validation of blockchain.
@@ -67,6 +89,7 @@ class blockchain():
     lastBlockLog = ''
 
     # We set blockchain's general features.
+
     def __init__(self, hashDifficulty, miningReward):
         print(f"Mining difficulty is {hashDifficulty}\n")
         self.hashDifficulty = hashDifficulty
@@ -75,12 +98,14 @@ class blockchain():
 
     # Genesis block is the first node of the blockchain,
     # so, we generated a random string for the starting point(hash).
+
     def createGenesisBlock(self):
         randomKey = ''.join(random.choice(string.ascii_lowercase)
                             for i in range(30))
         genericTransactions = [transaction("null", "null", 0)]
 
         # First transaction of the blockchain.
+
         self.transactions = genericTransactions
         self.validationFlag = True
         return block(sha256(
@@ -97,6 +122,7 @@ class blockchain():
                 block(self.getCurrentBlock().blockHash, self.hashDifficulty, transactions))
 
     # For security reasons, we will need to validate our blockchain.
+
     def validateBlockChain(self):
         for i in range(len(self.blockchain) - 1):
             if self.blockchain[i].blockHash != self.blockchain[i + 1].previousBlockHash:
@@ -120,19 +146,29 @@ class blockchain():
 
     # This function is responsible for adding transactions to
     # the blockchain and checking them if they are valid.
+
     def addTransaction(self, newTransaction):
         transactionCoins = self.getBalance(newTransaction.source)
-        if newTransaction.coins <= 0 or transactionCoins < newTransaction.coins:
+
+        if newTransaction.coins <= 0:
+            self.lastBlockLog = f"Transaction amount can't be a negative value!"
+            print(self.lastBlockLog)
+            return False
+
+        if transactionCoins < newTransaction.coins:
             self.lastBlockLog = f"Insufficient coins in the source! {newTransaction.source} needs: {newTransaction.coins - transactionCoins}"
             print(self.lastBlockLog)
             return False
-        else:
-            if self.validateTransaction(newTransaction) == False:
-                return False
-            self.transactions.append(newTransaction)
-            # Activate this to get only one transaction per block.
-            # self.handleTransaction("null")
-            return True
+
+        if self.validateTransaction(newTransaction) == False:
+            return False
+
+        self.transactions.append(newTransaction)
+
+        # ***Activate this to get only one transaction per block.***
+        # self.handleTransaction("null")
+
+        return True
 
     def addText(self, newText):
         self.transactions.append(newText)
@@ -141,7 +177,6 @@ class blockchain():
         print(
             f"Transaction is forced. {newTransaction.coins} added to {newTransaction.destination}")
         self.transactions.append(newTransaction)
-        return True
 
     def validateTransaction(self, newTransaction):
         signer = digitalSignature()
@@ -162,7 +197,8 @@ class blockchain():
             return False
         work = len(self.transactions)
 
-        # Every block has a limited space for transactions.
+        # Every block has a limited space for the transactions.
+
         while len(self.transactions) > self.getCurrentBlock().blockTransactionCapacity:
             limitedTransactions = []
             for i in range(self.getCurrentBlock().blockTransactionCapacity):
@@ -174,18 +210,21 @@ class blockchain():
 
         self.transactions = []
 
-        # We can change "null" with the user
-        # who does the work.
+        # We can change "null" with the user who does the work.
+
         self.transactions.append(transaction(
             "null", miningRewardAddress, self.miningReward * work))
         return True
 
     # This function gets the balance of specified address
     # with checking all transactions within the blockchain.
+
     def getBalance(self, addressofBalance):
         availableCoins = 0
+
         # With try/catch block, we prevent chat and balance
-        # blocks to mix (We cannot mix ints and strings).
+        # blocks to mix (We cannot mix integers and strings).
+
         for i in range(len(self.blockchain)):
             for j in range(len(self.blockchain[i].blockTransactions)):
                 try:
@@ -234,7 +273,7 @@ class transaction():
 # We can use any asymetric encryption algorithm. For my
 # implementation, I will use RSA algorithm.
 # ----
-# For each transaction, we will encrypt thr transaction
+# For each transaction, we will encrypt the transaction
 # hash and send it to the handler.
 # Handler will validate transaction by decrypting the
 # hash and compare it with the original transaction
@@ -258,22 +297,8 @@ class digitalSignature:
         return validatedHashinBytes.decode('utf8')
 
 
-class walletChecker():
-    wallets = []
-
-    def __init__(self, wallets):
-        self.wallets = wallets
-
-    def addWallet(self, newWallet):
-        for wallet in self.wallets:
-            if wallet.publicAddress == newWallet.publicAddress:
-                print("You can't use an existed wallet name!")
-                return
-
-        self.wallets.append(newWallet)
-
-
 # A general purpose wallet for blockchain.
+
 class wallet():
     ownerName = ''
     publicAddress = ''  # aka source
@@ -292,7 +317,8 @@ class wallet():
         self.done()
 
     def generatePublicKey(self):
-        self.publicAddress = sha256(self.ownerName.encode('utf-8')).hexdigest()
+        stream = self.ownerName + self.creationTime
+        self.publicAddress = sha256(stream.encode('utf-8')).hexdigest()
 
     def generatePrivateKey(self):
         newHash = ""
@@ -314,12 +340,28 @@ class wallet():
         print(
             'Please write down your private keys in order to keep an access to your transactions and wallet.')
         print(f'Your private keys: {self.privateKeys}\n')
-
+        self.privateKeys.clear()
         # Updating the wallet's owner balance.
 
     def updateTransactions(self, blockchain):
         coins = blockchain.getBalance(self.ownerName)
         return f'Coins in the wallet: {coins}'
+
+
+class walletChecker():
+    wallets = []
+
+    def __init__(self, wallets):
+        self.wallets = wallets
+
+    def addWallet(self, newWallet):
+        for wallet in self.wallets:
+            if wallet.publicAddress == newWallet.publicAddress:
+                print("You can't use an existed wallet name!")
+                return
+
+        self.wallets.append(newWallet)
+
 
 # I used pickle module for saving and loading blockchain database.
 # I will also use some encryption techniques here later.
@@ -351,5 +393,3 @@ class database():
 
         load1.close()
         load2.close()
-
-# block1 = blockchain(4,0.2) # Mining Difficulty and reward
