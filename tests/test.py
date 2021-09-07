@@ -1,20 +1,16 @@
 import numpy as np
 from datetime import datetime
-import random
-import string
 import matplotlib.pyplot as plt
-from hashlib import sha256
 
 from blockchain import *
-from p2pserver import *
 
 
 block1 = blockchain(2, 0.2)  # Mining Difficulty and reward
-#block1.forceTransaction(transaction("null", "person1", 100))
+
 # Mining section.
 x = []
 y = []
-for i in range(100):
+for i in range(500):
     initialTime = datetime.now()
     block1.handleTransaction("person1")  # Mining reward + 0.2
     finalTime = datetime.now() - initialTime
@@ -43,7 +39,7 @@ database1.loadDatabase('')
 
 
 # Reward rate
-plt.plot(x, y)
-plt.xlabel("Mining reward")
-plt.ylabel("Time")
+plt.plot(y, x)
+plt.xlabel("Time")
+plt.ylabel("Mining reward")
 plt.show()

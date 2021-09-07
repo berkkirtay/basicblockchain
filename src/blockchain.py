@@ -85,6 +85,7 @@ class blockchain():
     blockchain = []
     hashDifficulty = 0
     miningReward = 0
+    chainSize = 0
     transactions = []
     lastBlockLog = ''
 
@@ -118,10 +119,27 @@ class blockchain():
         self.validationFlag = self.validateBlockChain()
 
         if self.validationFlag == True:
-            self.blockchain.append(
+            self.insertBlockAndReevaluateDifficulty(
                 block(self.getCurrentBlock().blockHash, self.hashDifficulty, transactions))
 
-    # For security reasons, we will need to validate our blockchain.
+    # Blockchain will make mining harder as it has more blocks.
+    # This is a similar procedure for all other famous blockchain applications.
+    # To be more precise, this implementation should be changed based on
+    # peer numbers who actively mine blocks. I will change this
+    # feature once I implement peer to peer network properly.
+
+    def insertBlockAndReevaluateDifficulty(self, newBlock):
+        self.blockchain.append(newBlock)
+        self.chainSize += 1
+
+        while True:
+            difficultyDeterminer = (self.chainSize / self.hashDifficulty) / 10
+            if difficultyDeterminer < 10:
+                break
+            else:
+                self.hashDifficulty += 1
+
+    # To secure the transactions, we need to validate our blockchain.
 
     def validateBlockChain(self):
         for i in range(len(self.blockchain) - 1):
@@ -315,6 +333,7 @@ class wallet():
         self.generatePublicKey()
         self.generatePrivateKey()
         self.done()
+        self.publicAddress = ownerName  # Use ownerName as publicAddress
 
     def generatePublicKey(self):
         stream = self.ownerName + self.creationTime

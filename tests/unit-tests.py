@@ -2,6 +2,13 @@ from blockchain import *
 from blockchainChat import blockchainChat
 
 
+def assertEquals(var1, var2):
+    if var1 == var2:
+        return True
+    else:
+        return False
+
+
 def handleTransactionTestBase(blockchain):
     blockchain.handleTransaction("null")
 
@@ -10,36 +17,42 @@ def forceTransacitonTest1(blockchain):
     blockchain.forceTransaction(
         transaction("lsjy0p1q2kesd7j26e", "person1", 10000))
     handleTransactionTestBase(blockchain)
+    return blockchain.getBalance("person1")  # returns 10000
 
 
 def transactionTest1(blockchain):
     blockchain.addTransaction(
         transaction("null", "person1", 10000))
     handleTransactionTestBase(blockchain)
+    return blockchain.getBalance("person1")  # returns 0
 
 
 def transactionTest2(blockchain):
     blockchain.addTransaction(
         transaction("person1", "person2", -10000))
     handleTransactionTestBase(blockchain)
+    return blockchain.getBalance("person2")  # returns 0
 
 
 def transactionTest3(blockchain):
     blockchain.addTransaction(
         transaction("person2", "person1", 1000))
     handleTransactionTestBase(blockchain)
+    return blockchain.getBalance("person1")  # returns 0
 
 
 def transactionTest4(blockchain):
     blockchain.addTransaction(
         transaction("person1", "person2", 99999999999999))
     handleTransactionTestBase(blockchain)
+    return blockchain.getBalance("person2")  # returns 0
 
 
 def transactionTest5(blockchain):
     blockchain.addTransaction(
         transaction("person1", "person2", 10000))
     handleTransactionTestBase(blockchain)
+    return blockchain.getBalance("person2")  # returns 10000
 
 
 def transactionTest6(blockchain):
@@ -88,14 +101,14 @@ def saveDatabasetest(blockchain, wallets):
 def startTests(blockchain):
 
     # Coin transactions
-    forceTransacitonTest1(blockchain)
+    assertEquals(10000, forceTransacitonTest1(blockchain))
 
-    transactionTest1(blockchain)
-    transactionTest2(blockchain)
-    transactionTest3(blockchain)
-    transactionTest4(blockchain)
-    transactionTest5(blockchain)
-    transactionTest6(blockchain)
+    assertEquals(0, transactionTest1(blockchain))
+    assertEquals(0, transactionTest2(blockchain))
+    assertEquals(0, transactionTest3(blockchain))
+    assertEquals(0, transactionTest4(blockchain))
+    assertEquals(10000, transactionTest5(blockchain))
+    assertEquals(0, transactionTest6(blockchain))
 
     # Text block transactions
 

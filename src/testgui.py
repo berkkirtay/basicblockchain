@@ -22,7 +22,7 @@ newDatabase = database()
 
 def load():
     global block1, wallets1, newDatabase
-    newDatabase.loadDatabase()
+    newDatabase.loadDatabase("")
     block1 = newDatabase.blockchain
     wallets1 = newDatabase.wallets
 
@@ -113,7 +113,7 @@ def onCreateWallet():
             "Success!", f"Wallet is created! Please don't forget your public and private keys!\nPublic key = {newWallet.publicAddress}\nPrivate key = {newWallet.privateAddress}", command=subwindow.destroy())
         # Force transaction
         #block1.forceTransaction(transaction("null", newpublicName, 100))
-        newDatabase.saveDatabase(block1, wallets1)
+        newDatabase.saveDatabase(block1, wallets1, "")
     registerButton = Button(subwindow, text="Enter", command=createNewWallet)
     registerButton.place(x=90, y=90)
 
@@ -161,7 +161,7 @@ def onTransaction():
     logIndex += 1
     global getBalance
     getBalance.set(wallets1[index].updateTransactions(block1))
-    newDatabase.saveDatabase(block1, wallets1)
+    newDatabase.saveDatabase(block1, wallets1, "")
     ########################################
 
 
@@ -233,7 +233,7 @@ def onLogin():
             miningCompletedLabel.configure(text="Completed!")
             miningLabel.destroy()
             miningCompletedLabel.destroy()
-            newDatabase.saveDatabase(block1, wallets1)
+            newDatabase.saveDatabase(block1, wallets1, "")
             ########################################
 
         thread = threading.Thread(target=miningLoop)
