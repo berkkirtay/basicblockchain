@@ -47,7 +47,7 @@ class block():
     blockMineSize = 0
     hashDifficulty = 0
     validationTime = None
-    blockTransactionCapacity = 100
+    blockTransactionCapacity = 1000
     blockTransactions = []
     # Each block has its unique hash string which is being generated
     # with all essential informations in the block.
@@ -57,15 +57,15 @@ class block():
         self.previousBlockHash = previousBlockHash
         self.blockTransactions = blockTransactions
         self.validationTime = datetime.now().strftime("%H:%M:%S")
-        self.blockHash = self.generateBlockHash()
+        self.generateBlockHash()
         self.proofOfWork()
 
     def generateBlockHash(self):
         newhash = self.previousBlockHash + self.validationTime + \
             str(self.blockTransactions) + str(self.blockMineSize)
-        return sha256(newhash.encode('utf-8')).hexdigest()
+        self.blockHash = sha256(newhash.encode('utf-8')).hexdigest()
 
-    # This is the mining section. It generates hashes according to the difficulty
+    # This is the block mining section. It generates hashes according to the difficulty
     # and guarantees the security of the blockchain with the work done.
     # This section can be improved since continuous increments of blockMineSize
     # is a poor way to generate different hash every turn.
@@ -73,12 +73,12 @@ class block():
     def proofOfWork(self):
         initialTime = datetime.now()
         while self.blockHash[len(self.blockHash) - self.hashDifficulty:] != "0" * self.hashDifficulty:
-            self.blockHash = self.generateBlockHash()
+            self.generateBlockHash()
             self.blockMineSize += 1
 
         finalTime = datetime.now() - initialTime
         print(
-            f"Block hash = {self.blockHash}\nmined in {finalTime.total_seconds()} seconds.\n")
+            f"Block hash = {self.blockHash}\nis mined in {finalTime.total_seconds()} seconds.\n")
 
 
 class blockchain():
@@ -92,10 +92,16 @@ class blockchain():
     # We set blockchain's general features.
 
     def __init__(self, hashDifficulty, miningReward):
-        print(f"Mining difficulty is {hashDifficulty}\n")
         self.hashDifficulty = hashDifficulty
         self.miningReward = miningReward
         self.blockchain = [self.createGenesisBlock()]
+        print("Blockchain has been initialized...")
+        print(
+            f"Block mining difficulty is {hashDifficulty}.\nMiner reward per block is {miningReward}.")
+        print(
+            f"Block transaction capacity is {self.blockchain[-1].blockTransactionCapacity}")
+
+        print("Genesis block is successfully built.")
 
     # Genesis block is the first node of the blockchain,
     # so, we generated a random string for the starting point(hash).
@@ -107,20 +113,19 @@ class blockchain():
 
         # First transaction of the blockchain.
 
-        self.transactions = genericTransactions
+        self.transactions = genericTransactions.copy()
         self.validationFlag = True
         return block(sha256(
             randomKey.encode('utf-8')).hexdigest(), self.hashDifficulty, genericTransactions)
 
     def getCurrentBlock(self):
-        return self.blockchain[len(self.blockchain) - 1]
+        return self.blockchain[-1]
 
     def newBlock(self, transactions):
-        self.validationFlag = self.validateBlockChain()
+        self.insertBlockAndReevaluateDifficulty(
+            block(self.getCurrentBlock().blockHash, self.hashDifficulty, transactions))
 
-        if self.validationFlag == True:
-            self.insertBlockAndReevaluateDifficulty(
-                block(self.getCurrentBlock().blockHash, self.hashDifficulty, transactions))
+        self.validateBlockchain()
 
     # Blockchain will make mining harder as it has more blocks.
     # This is a similar procedure for all other famous blockchain applications.
@@ -131,6 +136,8 @@ class blockchain():
     def insertBlockAndReevaluateDifficulty(self, newBlock):
         self.blockchain.append(newBlock)
         self.chainSize += 1
+        if self.hashDifficulty == 0:
+            return
 
         while True:
             difficultyDeterminer = (self.chainSize / self.hashDifficulty) / 10
@@ -141,13 +148,13 @@ class blockchain():
 
     # To secure the transactions, we need to validate our blockchain.
 
-    def validateBlockChain(self):
+    def validateBlockchain(self):
         for i in range(len(self.blockchain) - 1):
             if self.blockchain[i].blockHash != self.blockchain[i + 1].previousBlockHash:
-                print("Blockchain isn't valid!!!!.\n")
+                print("Blockchain isn't valid!!!.\n")
+                self.validationFlag = False
                 self.handleInvalidBlock()
-                return False
-        return True
+        self.validationFlag = True
 
     def handleInvalidBlock(self):
         while self.validationFlag == False:
@@ -155,7 +162,7 @@ class blockchain():
                 self.blockchain.pop()
                 print(
                     f"Trying to recover the blockchain to the previous version. Last block index is {len(self.blockchain)}\n")
-                self.validateBlockChain()
+                self.validateBlockchain()
             except:
                 print("There is no block left! Creating a new genesis block..")
                 self.blockchain = [self.createGenesisBlock()]
@@ -192,8 +199,8 @@ class blockchain():
         self.transactions.append(newText)
 
     def forceTransaction(self, newTransaction):
-        print(
-            f"Transaction is forced. {newTransaction.coins} added to {newTransaction.destination}")
+     #   print(
+       #     f"Transaction is forced. {newTransaction.coins} added to {newTransaction.destination}")
         self.transactions.append(newTransaction)
 
     def validateTransaction(self, newTransaction):
@@ -202,7 +209,7 @@ class blockchain():
             newTransaction.transactionSignature)
 
         if transactionHash == newTransaction.transactionHash:
-            print('Transaction is validated!')
+           # print('Transaction is validated!')
             return True
         return False
 
@@ -212,27 +219,27 @@ class blockchain():
 
     def handleTransaction(self, miningRewardAddress):
         if len(self.transactions) == 0:
-            return False
+            return
         work = len(self.transactions)
 
         # Every block has a limited space for the transactions.
 
-        while len(self.transactions) > self.getCurrentBlock().blockTransactionCapacity:
+        while not len(self.transactions) == 0:
             limitedTransactions = []
-            for i in range(self.getCurrentBlock().blockTransactionCapacity):
+            transactionsSize = 0
+            if self.getCurrentBlock().blockTransactionCapacity > len(self.transactions):
+                transactionsSize = len(self.transactions)
+            else:
+                transactionsSize = self.getCurrentBlock().blockTransactionCapacity
+
+            for i in range(transactionsSize):
                 limitedTransactions.append(self.transactions.pop())
-            self.newBlock(limitedTransactions)
+            self.newBlock(limitedTransactions.copy())
 
-        if len(self.transactions) != 0:
-            self.newBlock(self.transactions)
-
-        self.transactions = []
-
-        # We can change "null" with the user who does the work.
+        self.transactions.clear()
 
         self.transactions.append(transaction(
             "null", miningRewardAddress, self.miningReward * work))
-        return True
 
     # This function gets the balance of specified address
     # with checking all transactions within the blockchain.

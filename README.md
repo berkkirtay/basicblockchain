@@ -8,6 +8,7 @@ In the time being, this implementation works locally (by saving and loading data
 - Test GUI
 - Basic database for blockchain and wallets
 - Basic chat program based on blockchain
+- A blockchain based voting system
 - P2p network for database transfer (haven't been tested yet)
 - Basic web-api for wallet interface with transactions and chat.
 
