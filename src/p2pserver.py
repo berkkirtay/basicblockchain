@@ -5,16 +5,18 @@ import socket
 import threading
 import pickle
 import time
-from blockchain import *
+from Blockchain import *
+
 
 class p2p():
-    # This is not completely a p2p network but any client can act like a server 
+    # This is not completely a p2p network but any client can act like a server
     # and transfer updated blockchain information to other peers.
     blockchain = None
     address = ''
     PORT = 0
     socket1 = None
     continuousTransfer = True
+
     def __init__(self, blockchain, address, PORT):
         self.blockchain = blockchain
         if self.blockchain == None:
@@ -38,7 +40,7 @@ class p2p():
             newConnection.send(data)
             data = self.newConnection.recv(10000)
             self.blockchain = pickle.loads(data)
-           # self.refreshBlockchain()    
+           # self.refreshBlockchain()
         except:
             print(f"Peer is down: {newAddress}")
             newConnection.close()
@@ -51,13 +53,15 @@ class p2p():
         while self.continuousTransfer:
             try:
                 newConnection, newAddress = self.socket1.accept()
-                newthread = threading.Thread(target=self.handleNewConnection, args=(newConnection, newAddress))
-                newthread.start()  
+                newthread = threading.Thread(
+                    target=self.handleNewConnection, args=(newConnection, newAddress))
+                newthread.start()
             except KeyboardInterrupt:
                 self.stopNetwork()
-                break   
-            #self.continuousTransfer = False  
-    def addPair(self):   
+                break
+            #self.continuousTransfer = False
+
+    def addPair(self):
         try:
             data = pickle.dumps(self.blockchain)
             self.socket1.send(data)
@@ -77,5 +81,3 @@ class p2p():
     def stopNetwork(self):
         self.continuousTransfer = False
         self.socket1.close()
-
-     

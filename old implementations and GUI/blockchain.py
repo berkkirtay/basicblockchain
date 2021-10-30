@@ -27,39 +27,21 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 '''
 
-from Crypto.Hash import SHA256
+from hashlib import sha1, sha256
 from datetime import datetime
 import random
 import string
+import pickle
+import rsa
 
-from Transaction import TransactionSignature, Transaction, generateGenesisSignKeyPair
-
-
-class GenesisBlockKeyProvider():
-    GENESIS_BLOCK_PRIVATE_KEY = ""
-    GENESIS_BLOCK_PUBLIC_KEY = ""
-
-    def __init__(self):
-        key_pair = generateGenesisSignKeyPair()
-        self.GENESIS_BLOCK_PUBLIC_KEY = key_pair[0]
-        self.GENESIS_BLOCK_PRIVATE_KEY = key_pair[1]
-
-    def private_key(self) -> str:
-        return self.GENESIS_BLOCK_PRIVATE_KEY
-
-    def public_key(self) -> str:
-        return self.GENESIS_BLOCK_PUBLIC_KEY
+(RSA_PublicKey, RSA_PrivateKey) = rsa.newkeys(512, 4)
 
 
-KEY_PAIR = None
-
-# Every block keeps previous block's hash for validation between blocks.
+# Every block keeps previous block's hash for validation of blockchain.
 # We create a hash code based on previous block's hash,
 # block's validation time and transactions.
-# This method is basically bitcoin's consensus approach
 
-
-class Block():
+class block():
     previousBlockHash = ''
     blockHash = ''
     blockMineSize = 0
@@ -67,9 +49,8 @@ class Block():
     validationTime = None
     blockTransactionCapacity = 1000
     blockTransactions = []
-
     # Each block has its unique hash string which is being generated
-    # with all the essential information in the block.
+    # with all essential informations in the block.
 
     def __init__(self, previousBlockHash, hashDifficulty, blockTransactions):
         self.hashDifficulty = hashDifficulty
@@ -80,9 +61,9 @@ class Block():
         self.proofOfWork()
 
     def generateBlockHash(self):
-        stream = str(self.previousBlockHash) + self.validationTime + \
+        newhash = self.previousBlockHash + self.validationTime + \
             str(self.blockTransactions) + str(self.blockMineSize)
-        self.blockHash = SHA256.new(stream.encode('utf-8')).hexdigest()
+        self.blockHash = sha256(newhash.encode('utf-8')).hexdigest()
 
     # This is the block mining section. It generates hashes according to the difficulty
     # and guarantees the security of the blockchain with the work done.
@@ -100,7 +81,7 @@ class Block():
             f"Block hash = {self.blockHash}\nis mined in {finalTime.total_seconds()} seconds.\n")
 
 
-class Blockchain():
+class blockchain():
     blockchain = []
     hashDifficulty = 0
     miningReward = 0
@@ -118,9 +99,9 @@ class Blockchain():
         print(
             f"Block mining difficulty is {hashDifficulty}.\nMiner reward per block is {miningReward}.")
         print(
-            f"Block Transaction capacity is {self.blockchain[-1].blockTransactionCapacity}")
+            f"Block transaction capacity is {self.blockchain[-1].blockTransactionCapacity}")
 
-        print("Genesis block is initialized successfully.")
+        print("Genesis block is successfully built.")
 
     # Genesis block is the first node of the blockchain,
     # so, we generated a random string for the starting point(hash).
@@ -128,24 +109,21 @@ class Blockchain():
     def createGenesisBlock(self):
         randomKey = ''.join(random.choice(string.ascii_lowercase)
                             for i in range(30))
+        genericTransactions = [transaction("null", "null", 0)]
 
-       # genericTransactions = [Transaction("null", "null", 0)]
-
-        global KEY_PAIR
-        KEY_PAIR = GenesisBlockKeyProvider()
         # First transaction of the blockchain.
-        genericTransactions = []
 
+        self.transactions = genericTransactions.copy()
         self.validationFlag = True
-        return Block(SHA256.new(randomKey.encode('utf-8')).hexdigest(),
-                     self.hashDifficulty, genericTransactions)
+        return block(sha256(
+            randomKey.encode('utf-8')).hexdigest(), self.hashDifficulty, genericTransactions)
 
     def getCurrentBlock(self):
         return self.blockchain[-1]
 
     def newBlock(self, transactions):
         self.insertBlockAndReevaluateDifficulty(
-            Block(self.getCurrentBlock().blockHash, self.hashDifficulty, transactions))
+            block(self.getCurrentBlock().blockHash, self.hashDifficulty, transactions))
 
         self.validateBlockchain()
 
@@ -168,8 +146,7 @@ class Blockchain():
             else:
                 self.hashDifficulty += 1
 
-    # To secure our blocks, we need to validate our blockchain.
-    # We do that by simply checking hash data of the blocks.
+    # To secure the transactions, we need to validate our blockchain.
 
     def validateBlockchain(self):
         for i in range(len(self.blockchain) - 1):
@@ -208,6 +185,9 @@ class Blockchain():
             print(self.lastBlockLog)
             return False
 
+        if self.validateTransaction(newTransaction) == False:
+            return False
+
         self.transactions.append(newTransaction)
 
         # ***Activate this to get only one transaction per block.***
@@ -218,27 +198,32 @@ class Blockchain():
     def addText(self, newText):
         self.transactions.append(newText)
 
-    # Forcing transactions is only for testing. It creates a
-    # transaction with the genesis block's signature.
-
-    def forceTransaction(self, publicAddress, coins):
-        newTransaction = Transaction(KEY_PAIR.public_key(),
-                                     publicAddress,
-                                     coins,
-                                     KEY_PAIR.private_key())
-
+    def forceTransaction(self, newTransaction):
+     #   print(
+       #     f"Transaction is forced. {newTransaction.coins} added to {newTransaction.destination}")
         self.transactions.append(newTransaction)
-        print(f"A forced transaction is added to the chain. Amount: {coins}")
 
-    # When there is pending transactions, those transactions
-    # should be handled by a miner. This is implemented in the
-    # function below.
+    def validateTransaction(self, newTransaction):
+        signer = digitalSignature()
+        transactionHash = signer.validateTransaction(
+            newTransaction.transactionSignature)
+
+        if transactionHash == newTransaction.transactionHash:
+           # print('Transaction is validated!')
+            return True
+        return False
+
+        # When there is pending transactions, those transactions
+        # should be handled by a miner. This is implemented in the
+        # function below.
 
     def handleTransaction(self, miningRewardAddress):
+        if len(self.transactions) == 0:
+            return
         work = len(self.transactions)
 
         # Every block has a limited space for the transactions.
-        blockRewards = []
+
         while not len(self.transactions) == 0:
             limitedTransactions = []
             transactionsSize = 0
@@ -248,37 +233,16 @@ class Blockchain():
                 transactionsSize = self.getCurrentBlock().blockTransactionCapacity
 
             for i in range(transactionsSize):
-                nextTransaction = self.transactions.pop()
-                isValid = self.validateTransaction(
-                    nextTransaction, nextTransaction.source)
-
-                if isValid == True:
-                    nextTransaction.approve()
-                    limitedTransactions.append(nextTransaction)
-
-                    # Block rewards are being paid from transaction fees.
-                    blockRewards.append(Transaction(
-                        KEY_PAIR.public_key(), miningRewardAddress, self.miningReward, KEY_PAIR.private_key()))
-
-            # Create a genesis private key to sign block rewards!
+                limitedTransactions.append(self.transactions.pop())
             self.newBlock(limitedTransactions.copy())
 
         self.transactions.clear()
-        self.transactions = blockRewards.copy()
 
-    def validateTransaction(self, newTransaction, publicKey):
-        transactionSigner = TransactionSignature()
-        validator = transactionSigner.validateTransaction(
-            newTransaction.transactionHash, newTransaction.transactionSignature, publicKey)
-
-        if validator == True:
-            print(
-                f'Transaction is validated! -> {newTransaction.transactionHash.hexdigest()}')
-            return True
-        return False
+        self.transactions.append(transaction(
+            "null", miningRewardAddress, self.miningReward * work))
 
     # This function gets the balance of specified address
-    # with checking all Transactions within the blockchain.
+    # with checking all transactions within the blockchain.
 
     def getBalance(self, addressofBalance):
         availableCoins = 0
@@ -297,3 +261,161 @@ class Blockchain():
                     continue
 
         return availableCoins
+
+
+# Transaction class saves source and destination
+# of the transfers with a validation.
+
+class transaction():
+    source = ''
+    destination = ''
+    coins = 0
+    validationTime = None
+    transactionHash = ''
+    transactionSignature = ''
+
+    def __init__(self, source, destination, coins):
+        self.source = source
+        self.destination = destination
+        self.coins = coins
+        self.setTransaction()
+
+    def setTransaction(self):
+        self.validationTime = datetime.now().strftime("%H:%M:%S")
+        self.generateTransactionHash()
+
+        signer = digitalSignature()
+        self.transactionSignature = signer.signTransaction(
+            self.transactionHash)
+
+    def generateTransactionHash(self):
+        newHash = self.source + self.destination + \
+            str(self.coins) + self.validationTime
+        self.transactionHash = sha1(newHash.encode('utf-8')).hexdigest()
+
+
+# We need digital signatures to validate our transactions.
+# We can use any asymetric encryption algorithm. For my
+# implementation, I will use RSA algorithm.
+# ----
+# For each transaction, we will encrypt the transaction
+# hash and send it to the handler.
+# Handler will validate transaction by decrypting the
+# hash and compare it with the original transaction
+# hash. If they are same, then validation will be done.
+
+
+class digitalSignature:
+    def __init__(self):
+        pass
+
+    def signTransaction(self, transactionHash):
+        signedHashinBytes = rsa.encrypt(
+            transactionHash.encode('utf8'), RSA_PublicKey)
+
+        return signedHashinBytes
+
+    def validateTransaction(self, encryptedTransactionHash):
+        validatedHashinBytes = rsa.decrypt(
+            encryptedTransactionHash, RSA_PrivateKey)
+
+        return validatedHashinBytes.decode('utf8')
+
+
+# A general purpose wallet for blockchain.
+
+class wallet():
+    ownerName = ''
+    publicAddress = ''  # aka source
+    privateAddress = ''
+    privateKeys = []
+    coins = 0
+    transactions = []
+    creationTime = None
+
+    def __init__(self, ownerName, publicAddress):
+        self.ownerName = ownerName
+        self.creationTime = datetime.now().strftime("%H:%M:%S")
+        self.randomWordGenerator()
+        self.generatePublicKey()
+        self.generatePrivateKey()
+        self.done()
+        self.publicAddress = ownerName  # Use ownerName as publicAddress
+
+    def generatePublicKey(self):
+        stream = self.ownerName + self.creationTime
+        self.publicAddress = sha256(stream.encode('utf-8')).hexdigest()
+
+    def generatePrivateKey(self):
+        newHash = ""
+        for key in self.privateKeys:
+            newHash += key
+        self.privateAddress = sha256(newHash.encode('utf-8')).hexdigest()
+
+    def randomWordGenerator(self):
+        self.privateKeys.append(self.ownerName)
+        for i in range(9):
+            tempStr = ''
+            for j in range(10):
+                tempStr += random.choice(string.ascii_lowercase)
+            self.privateKeys.append(tempStr)
+
+    def done(self):
+        print(
+            f'A new public and private key pair is generated for : {self.ownerName}.')
+        print(
+            'Please write down your private keys in order to keep an access to your transactions and wallet.')
+        print(f'Your private keys: {self.privateKeys}\n')
+        self.privateKeys.clear()
+        # Updating the wallet's owner balance.
+
+    def updateTransactions(self, blockchain):
+        coins = blockchain.getBalance(self.ownerName)
+        return f'Coins in the wallet: {coins}'
+
+
+class walletChecker():
+    wallets = []
+
+    def __init__(self, wallets):
+        self.wallets = wallets
+
+    def addWallet(self, newWallet):
+        for wallet in self.wallets:
+            if wallet.publicAddress == newWallet.publicAddress:
+                print("You can't use an existed wallet name!")
+                return
+
+        self.wallets.append(newWallet)
+
+
+# I used pickle module for saving and loading blockchain database.
+# I will also use some encryption techniques here later.
+# This database should be transferred with p2p sockets as well.
+
+
+class database():
+    blockchain = None
+    wallets = []
+    creationDate = None
+
+    def __init__(self):
+        self.creationDate = datetime.now().strftime("%H:%M:%S")
+
+    def saveDatabase(self, blockchain, wallets, path):
+        save1 = open(path + 'blockchainData1', 'wb')
+        pickle.dump(blockchain, save1)
+        save2 = open(path + 'walletData1', 'wb')
+        pickle.dump(wallets, save2)
+
+        save1.close()
+        save2.close()
+
+    def loadDatabase(self, path):
+        load1 = open(path + 'blockchainData1', 'rb')
+        self.blockchain = pickle.load(load1)
+        load2 = open(path + 'walletData1', 'rb')
+        self.wallets = pickle.load(load2)
+
+        load1.close()
+        load2.close()
