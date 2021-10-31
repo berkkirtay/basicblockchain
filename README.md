@@ -7,10 +7,9 @@ In the time being, this implementation works locally (by saving and loading data
 - Blockchain library
 - Test GUI
 - Blockchain validators and transaction signatures
+- P2P blockchain nodes (Still under development)
 - Basic export and import module for blockchain data
-- Basic chat program based on blockchain
-- A blockchain based voting system
-- P2p network for database transfer (Still under development)
+- Blockchain based voting system and chat module
 - Basic web-api for wallet interface with transactions and chat.
 
 ## GUI Screenshots 

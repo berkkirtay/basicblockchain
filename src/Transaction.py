@@ -1,4 +1,3 @@
-
 from datetime import datetime
 from Crypto.Hash import SHA256
 from Crypto import Random
@@ -18,6 +17,7 @@ class Transaction():
     transactionHash = ''
     transactionSignature = ''
     validationTime = None
+    isNew = True
 
     @classmethod
     def initializeTransaction(self, source, destination, coins, transactionHash, transactionSignature, validationTime):
@@ -27,15 +27,17 @@ class Transaction():
         self.transactionHash = transactionHash
         self.transactionSignature = transactionSignature
         self.validationTime = validationTime
-        return self
+        self.isNew = False
+        return Transaction(source, destination, coins, None)
 
-    def __init__(self, source, destination, coins, sourcePrivateKey):
+    def __init__(self, source: str, destination: str, coins: float, sourcePrivateKey: str):
         self.source = source
         self.destination = destination
         self.coins = coins
-        self.setTransaction(sourcePrivateKey)
+        if self.isNew == True:
+            self.setTransaction(sourcePrivateKey)
 
-    def setTransaction(self, sourcePrivateKey):
+    def setTransaction(self, sourcePrivateKey: str):
         self.validationTime = datetime.now().strftime("%H:%M:%S")
         self.generateTransactionHash()
 
@@ -69,7 +71,7 @@ class TransactionSignature:
     def __init__(self):
         pass
 
-    def signTransaction(self, transactionHash, privateKey) -> bytes:
+    def signTransaction(self, transactionHash: str, privateKey: str) -> bytes:
         privateKey = self.decodeKeyPairs(privateKey)
         signature = signer.new(RSA.importKey(privateKey)).sign(transactionHash)
         return signature
@@ -84,7 +86,7 @@ class TransactionSignature:
         return base64.b64decode(key)
 
 
-def generateGenesisSignKeyPair() -> list:
+def generateGenesisSignerKeyPair() -> list:
     randomGenerator = Random.new().read
     keyPair = RSA.generate(1024, randomGenerator)
     privateKey = keyPair.exportKey('PEM')

@@ -1,3 +1,4 @@
+import pathlib
 from Blockchain import *
 from Transaction import Transaction
 
@@ -5,6 +6,9 @@ import json
 
 
 class DataConverter:
+    def dumBlochcainDataAsStr(self, blockchain) -> str:
+        data = self.dumpBlockchainData(blockchain)
+        return json.dumps(data)
 
     def dumpBlockchainData(self, blockchain) -> list:
         blocks = []
@@ -15,6 +19,7 @@ class DataConverter:
                 "blockNumber": blockCounter,
                 "previousHash": block.previousBlockHash,
                 "blockHash": block.blockHash,
+                "blockNonce": block.blockNonce,
                 "hashDifficulty": block.hashDifficulty,
                 "validationTime": block.validationTime
             }
@@ -57,9 +62,9 @@ class DataConverter:
         for block in blockchainData["Blocks"]:
             tempBlock = Block(block["block"]["previousHash"],
                               0, {})
-            tempBlock.hashDifficulty = block["block"]
-            ["hashDifficulty"]
+            tempBlock.hashDifficulty = block["block"]["hashDifficulty"]
             tempBlock.blockHash = block["block"]["blockHash"]
+            tempBlock.blockNonce = block["block"]["blockNonce"]
             tempBlock.validationTime = block["block"]["validationTime"]
             tempBlock.blockTransactions = []
             for transaction in block["blockTransactions"]:
@@ -80,8 +85,13 @@ class DataConverter:
 
 
 class BlockDataIO():
+    folderName = './blockchain_data/'
+
+    def __init__(self):
+        pathlib.Path(self.folderName).mkdir(exist_ok=True)
+
     def readDataAndImport(self, path) -> Blockchain:
-        with open(path, 'r') as f:
+        with open(self.folderName + path, 'r') as f:
             return self.importDataGenerateBlockchain(f.read())
 
     def importDataGenerateBlockchain(self, blockchainData) -> Blockchain:
@@ -89,27 +99,5 @@ class BlockDataIO():
 
     def exportData(self, blockchain, path):
         jsonData = DataConverter().dumpBlockchainData(blockchain)
-        with open(path, 'w', encoding='utf-8') as f:
+        with open(self.folderName + path, 'w', encoding='utf-8') as f:
             json.dump(jsonData, f, ensure_ascii=False, indent=4)
-
-
-# TODO
-class NodeNetwork:
-    def __init__(self):
-        pass
-
-    def getBlockchainData(self) -> Blockchain:
-        # some network stuff here
-        receivedBlockchainData = []
-        converter = DataConverter()
-        return converter.loadBlockchainData(receivedBlockchainData)
-
-    def sendBlockchainData(self, blockchain):
-        converter = DataConverter()
-        # send(converter.dumpBlockchainData(blockchain))
-
-    def sendBlock(self):
-        pass
-
-    def receiveBlock(self):
-        pass

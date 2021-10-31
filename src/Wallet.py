@@ -1,10 +1,10 @@
-from hashlib import sha1, sha224, sha256
 from datetime import datetime
 from Crypto.PublicKey import RSA
 from Crypto import Random
 import base64
 import json
 import pathlib
+from Blockchain import Blockchain
 
 
 # A general purpose wallet for blockchain.
@@ -27,7 +27,7 @@ class Wallet():
     coins = 0
     creationTime = None
 
-    def __init__(self, ownerName):
+    def __init__(self, ownerName: str):
         self.ownerName = ownerName
 
     def createNewWallet(self):
@@ -64,26 +64,21 @@ class Wallet():
 
     # Updating the Wallet's owner balance.
 
-    def updateTransactions(self, blockchain):
-        self.coins = blockchain.getBalance(self.ownerName)
+    def updateTransactions(self, blockchain: Blockchain):
+        self.coins = blockchain.getBalance(self.publicKey)
         return f'Coins in the Wallet: {self.coins}'
 
 
 class WalletChecker():
     Wallets = []
 
-    def __init__(self, Wallets):
+    def __init__(self, Wallets: list):
         self.Wallets = Wallets
 
-    def addWallet(self, newWallet):
+    def addWallet(self, newWallet: Wallet):
         for Wallet in self.Wallets:
             if Wallet.publicAddress == newWallet.publicAddress:
                 print("You can't use an existed Wallet name!")
                 return
 
         self.Wallets.append(newWallet)
-
-
-class PublicKeyMapper():
-    def __init__(self):
-        pass
