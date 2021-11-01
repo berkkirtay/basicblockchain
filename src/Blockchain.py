@@ -1,7 +1,9 @@
+# -----------------------------------------------------------------
 # This is my personal blockchain implementation.
 # There can be bugs or mistakes on some parts.
 # Please be aware of the potential risks before using!
-# Developed by Berk Kırtay, all source code is under MIT License
+# Developed by Berk Kırtay, all source code is under MIT License.
+# -----------------------------------------------------------------
 
 '''
 MIT License
