@@ -2,38 +2,41 @@ from Blockchain import Blockchain
 from Wallet import Wallet
 from Transaction import Transaction
 from DataConverter import BlockDataIO
+import random
 
 
-block1 = Blockchain(3, 10)
+blockchain = Blockchain(4, 10)
 
-# Creating two new wallets
+# Creating random wallets
 
-wallet1 = Wallet("person1")
-wallet1.createNewWallet()
+wallets = []
+for i in range(1, 25):
+    newWallet = Wallet("null")
+    newWallet.createNewWallet()
+    wallets.append(newWallet)
+    blockchain.forceTransaction(newWallet.publicKey, 100000000)
 
-block1.forceTransaction(wallet1.publicKey, 1000000000)
+blockchain.handleTransaction("null")
 
-block1.handleTransaction("null")
+for i in range(1, 500):
+    randomWallet1 = wallets[random.randint(0, 23)]
+    randomWallet2 = wallets[random.randint(0, 23)]
+    blockchain.addTransaction(Transaction(
+        randomWallet1.publicKey, randomWallet2.publicKey, i * i, randomWallet1.privateKey))
 
-for i in range(1, 300):
-    block1.addTransaction(Transaction(
-        wallet1.publicKey, "null", i * i, wallet1.privateKey))
-    if i % 10 == 0:
-        block1.handleTransaction(wallet1.publicKey)
+blockchain.handleTransaction("null")
 
+# Blockchain data export and import
 
-# Blockchain export and import
+wallets[1].updateTransactions(blockchain)
+userBalanceBeforeExport = wallets[1].coins
 
-wallet1.updateTransactions(block1)
-
-userBalanceBeforeExport = wallet1.coins
-
-BlockDataIO().exportData(block1, "blockchainData.json")
+BlockDataIO().exportData(blockchain, "blockchainData.json")
 block2 = BlockDataIO().readDataAndImport("blockchainData.json")
 BlockDataIO().exportData(block2, "blockchainData2.json")
 
-wallet1.updateTransactions(block1)
-userBalanceAfterExport = wallet1.coins
+wallets[1].updateTransactions(blockchain)
+userBalanceAfterExport = wallets[1].coins
 
 if userBalanceBeforeExport == userBalanceAfterExport:
     print("Success")

@@ -76,13 +76,19 @@ class TransactionSignature:
         signature = signer.new(RSA.importKey(privateKey)).sign(transactionHash)
         return signature
 
-    def validateTransaction(self, transactionHash, signedTransactionHash, publicKey) -> bool:
-        publicKey = self.decodeKeyPairs(publicKey)
+    def validateTransaction(self, transactionHash, signedTransactionHash: bytes, publicKey: str) -> bool:
+        publicKey = self.decodePublicKey(publicKey)
         validator = signer.new(RSA.importKey(publicKey)).verify(
             transactionHash, signedTransactionHash)
         return validator
 
-    def decodeKeyPairs(self, key) -> bytes:
+    def decodeKeyPairs(self, key: str) -> bytes:
+        return base64.b64decode(key)
+
+    # Here we add the trivial parts back to the public key.
+    def decodePublicKey(self, key: str) -> bytes:
+        key = "LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlHZk1BMEdDU3FHU0liM0RRRUJBUVVBQTRHTkFEQ0JpUUtCZ1F" + \
+            key + "SURBUUFCCi0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQ=="
         return base64.b64decode(key)
 
 
@@ -93,6 +99,6 @@ def generateGenesisSignerKeyPair() -> list:
     privateKey = base64.b64encode(privateKey).decode("ascii")
 
     publicKey = keyPair.publickey().exportKey('PEM')
-    publicKey = base64.b64encode(publicKey).decode("ascii")
+    publicKey = base64.b64encode(publicKey).decode("ascii")[87:-44]
 
     return [publicKey, privateKey]

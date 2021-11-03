@@ -1,21 +1,20 @@
 # Basic Blockchain Implementation 
 
-A functional blockchain implementation in python. I will keep improving this library as I learn more about blockchain technology.
-In the time being, this implementation works locally (by saving and loading database files in the local folder).
+A functional blockchain implementation in python. This library lets you initialize a blockchain and perform transactions between peers. This implementation uses the proof of work method to build new blocks. Transactions are signed with 2048 bit RSA key pair and every wallet user has a unique key pair.
+I will keep improving this library as I learn more about blockchain technology.
 
 ### Current components: 
-- Blockchain library
-- Test GUI
+- Blockchain implementation with user wallets
 - Blockchain validators and transaction signatures
 - P2P blockchain nodes (Still under development)
 - Basic export and import module for blockchain data
 - Blockchain based voting system and chat module
-- Basic web-api for wallet interface with transactions and chat.
-
+- Test GUI for basic wallet operations 
+ 
 
 ## Basic Usage 
 
-### Blockchain initialization and transaction between two user:
+### Transaction Between Two Peers in Blockchain:
 
 ```python
 # Imports
@@ -68,7 +67,6 @@ wallet2.updateTransactions(blockchain)
 # wallet1.coins: 990
 # wallet2.coins: 30
 ```
-
 
 ## GUI Screenshots 
 In the old version of blockchain, GUI is still available. 

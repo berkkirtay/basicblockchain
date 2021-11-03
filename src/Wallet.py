@@ -9,17 +9,6 @@ from Blockchain import Blockchain
 
 # A general purpose wallet for blockchain.
 
-# TODO
-# We need to shorten public keys, to do that
-# we can remove the trivial parts and add them
-# when we use it for a digital signature validation.
-
-private_key_begin_comment = '-----BEGIN RSA PRIVATE KEY-----'
-private_key_end_comment = '-----END RSA PRIVATE KEY-----'
-public_key_begin_comment = '-----BEGIN PUBLIC KEY-----'
-public_key_end_comment = '-----END PUBLIC KEY-----'
-
-
 class Wallet():
     ownerName = ''
     publicKey = ''  # aka source
@@ -44,6 +33,9 @@ class Wallet():
 
         publicKey = keyPair.publickey().exportKey('PEM')
         self.publicKey = base64.b64encode(publicKey).decode("ascii")
+
+        # Here we shorten public key by removing the trivial parts.
+        self.publicKey = self.publicKey[87:-44]
 
     def exportKeyPair(self):
         keypair = {
