@@ -3,7 +3,7 @@ from Wallet import Wallet
 from Transaction import Transaction
 from DataConverter import BlockDataIO
 import random
-import pytest
+
 
 blockchain = Blockchain(1, 10)
 
@@ -18,7 +18,7 @@ for i in range(1, 25):
 
 blockchain.handleTransaction("null")
 
-for i in range(1, 500):
+for i in range(1, 100):
     randomWallet1 = wallets[random.randint(0, 23)]
     randomWallet2 = wallets[random.randint(0, 23)]
     blockchain.addTransaction(Transaction(
@@ -41,5 +41,5 @@ for i in range(1, 24):
     wallets[i].updateTransactions(blockchain2)
     userBalanceAfterExport = wallets[i].getBalance(blockchain2)
 
-# userBalanceBeforeExport == userBalanceAfterExport
+# assert userBalanceBeforeExport == userBalanceAfterExport
 print(f"{userBalanceBeforeExport} ve {userBalanceAfterExport}")

@@ -29,7 +29,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 '''
 
-from xml.dom import ValidationErr
 from Crypto.Hash import SHA256
 from datetime import datetime
 import random
