@@ -51,6 +51,7 @@ class Transaction():
         self.transactionHash = SHA256.new(stream.encode("utf-8"))
 
     def approve(self):
+        self.transactionHashByte = self.transactionHash
         self.transactionHash = self.transactionHash.hexdigest()
         self.transactionSignature = base64.b64encode(
             self.transactionSignature).decode("ascii")

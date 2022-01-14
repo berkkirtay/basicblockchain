@@ -6,7 +6,7 @@ import json
 
 
 class DataConverter:
-    def dumBlochcainDataAsStr(self, blockchain) -> str:
+    def dumpBlochcainDataAsStr(self, blockchain) -> str:
         data = self.dumpBlockchainData(blockchain)
         return json.dumps(data)
 

@@ -29,6 +29,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 '''
 
+from xml.dom import ValidationErr
 from Crypto.Hash import SHA256
 from datetime import datetime
 import random
@@ -67,7 +68,7 @@ class Block():
     blockNonce = 0
     hashDifficulty = 0
     validationTime = None
-    blockTransactionCapacity = 1000
+    blockTransactionCapacity = 100
     blockTransactions = []
 
     # Each block has its unique hash string which is being generated
@@ -201,21 +202,19 @@ class Blockchain():
         transactionCoins = self.getBalance(newTransaction.source)
 
         if newTransaction.coins <= 0:
-            self.lastBlockLog = f"Transaction amount can't be zero or a negative value!"
+            self.lastBlockLog = "Transaction amount can't be zero or a negative value!"
             print(self.lastBlockLog)
-            return False
+            raise ValueError(self.lastBlockLog)
 
         if transactionCoins < newTransaction.coins:
             self.lastBlockLog = f"Insufficient coins in the source! {newTransaction.source} needs: {newTransaction.coins - transactionCoins}"
             print(self.lastBlockLog)
-            return False
+            raise ValueError("Insufficient coins in the source!")
 
         self.pendingTransactions.append(newTransaction)
 
         # ***Activate this to get only one transaction per block.***
         # self.handleTransaction("null")
-
-        return True
 
     def addText(self, newText: str):
         self.pendingTransactions.append(newText)
@@ -237,8 +236,6 @@ class Blockchain():
     # function below.
 
     def handleTransaction(self, miningRewardAddress: str):
-        blockRewards = []
-
         # Every block has a limited space for the transactions.
         while not len(self.pendingTransactions) == 0:
             limitedTransactions = []
@@ -263,16 +260,17 @@ class Blockchain():
             # genesis key pair. This key pair is the authorized to
             # give block rewards and force transactions to test blockchain.
 
-            blockRewards.append(Transaction(
+            blockReward = Transaction(
                 KEY_PAIR.public_key(),
                 miningRewardAddress,
                 self.miningReward,
-                KEY_PAIR.private_key()))
+                KEY_PAIR.private_key())
+
+            limitedTransactions.append(blockReward)
 
             self.newBlock(limitedTransactions.copy())
 
         self.pendingTransactions.clear()
-        self.pendingTransactions = blockRewards.copy()
 
     def validateTransaction(self, newTransaction: Transaction, publicKey: str):
         transactionSigner = TransactionSignature()

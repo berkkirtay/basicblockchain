@@ -1,6 +1,8 @@
 from Blockchain import Blockchain
 from Wallet import Wallet
 from Transaction import Transaction
+from DataConverter import BlockDataIO
+import pytest
 
 # Blockchain initialization
 
@@ -28,8 +30,9 @@ wallet2.createNewWallet()
 blockchain.forceTransaction(wallet1.publicKey, 10000)
 
 # Mine the pending transaction:
-blockchain.handleTransaction(wallet2.publicKey)
+blockchain.handleTransaction("null")
 
+# wallet1 sends 295 coins to wallet2.
 for i in range(1, 10):
     blockchain.addTransaction(Transaction(
         wallet1.publicKey, wallet2.publicKey, i * i, wallet1.privateKey))
@@ -42,7 +45,7 @@ blockchain.handleTransaction(wallet2.publicKey)
 blockchain.addTransaction(Transaction(
     wallet1.publicKey, wallet2.publicKey, 10, wallet1.privateKey))
 
-blockchain.handleTransaction(wallet1.publicKey)
+blockchain.handleTransaction(wallet2.publicKey)
 
 # Updating balances of users:
 wallet1.updateTransactions(blockchain)
@@ -53,3 +56,8 @@ person2Balance = wallet2.coins  # 295 + 10*2 = 315
 
 print(f"Balance of person1: {person1Balance}")
 print(f"Balance of person2: {person2Balance}")
+
+
+def test_walletsShouldHaveCorrectBalances():
+    assert person1Balance == 9705
+    assert person2Balance == 315

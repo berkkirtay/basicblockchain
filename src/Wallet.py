@@ -60,6 +60,10 @@ class Wallet():
         self.coins = blockchain.getBalance(self.publicKey)
         return f'Coins in the Wallet: {self.coins}'
 
+    def getBalance(self, blockchain) -> int:
+        self.updateTransactions(blockchain)
+        return self.coins
+
 
 class WalletChecker():
     Wallets = []
