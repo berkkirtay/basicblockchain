@@ -10,36 +10,37 @@ blockchain = Blockchain(1, 10)
 # Creating random wallets
 
 wallets = []
-for i in range(1, 25):
+for i in range(25):
     newWallet = Wallet("null")
     newWallet.createNewWallet()
     wallets.append(newWallet)
     blockchain.forceTransaction(newWallet.publicKey, 100000000)
 
-blockchain.handleTransaction("null")
+blockchain.handleTransaction(wallets[0].publicKey)
 
-for i in range(1, 100):
-    randomWallet1 = wallets[random.randint(0, 23)]
-    randomWallet2 = wallets[random.randint(0, 23)]
+for i in range(1, 500):
+    randomWallet1 = wallets[random.randint(0, 24)]
+    randomWallet2 = wallets[random.randint(0, 24)]
     blockchain.addTransaction(Transaction(
         randomWallet1.publicKey, randomWallet2.publicKey, random.randint(1, 1000), randomWallet1.privateKey))
 
-blockchain.handleTransaction("null")
+blockchain.handleTransaction(wallets[0].publicKey)
 
 # Blockchain data export and import
-userBalanceBeforeExport = 0
-userBalanceAfterExport = 0
+usersBalanceBeforeExport = 0
+usersBalanceAfterExport = 0
 
-for i in range(1, 24):
+for i in range(25):
     wallets[i].updateTransactions(blockchain)
-    userBalanceBeforeExport += wallets[i].getBalance(blockchain)
+    usersBalanceBeforeExport += wallets[i].getBalance(blockchain)
 
 BlockDataIO().exportData(blockchain, "blockchainData.json")
 blockchain2 = BlockDataIO().readDataAndImport("blockchainData.json")
 
-for i in range(1, 24):
+for i in range(25):
     wallets[i].updateTransactions(blockchain2)
-    userBalanceAfterExport = wallets[i].getBalance(blockchain2)
+    usersBalanceAfterExport += wallets[i].getBalance(blockchain2)
 
-# assert userBalanceBeforeExport == userBalanceAfterExport
-print(f"{userBalanceBeforeExport} ve {userBalanceAfterExport}")
+
+def test_usersBalancesBeforeAndAfterIOMustBeEqual():
+    assert usersBalanceBeforeExport == usersBalanceAfterExport

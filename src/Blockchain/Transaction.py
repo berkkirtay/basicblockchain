@@ -28,7 +28,7 @@ class Transaction():
         self.transactionSignature = transactionSignature
         self.validationTime = validationTime
         self.isNew = False
-        return Transaction(source, destination, coins, None)
+        return Transaction(source, destination, coins, "")
 
     def __init__(self, source: str, destination: str, coins: float, sourcePrivateKey: str):
         self.source = source
@@ -51,7 +51,7 @@ class Transaction():
         self.transactionHash = SHA256.new(stream.encode("utf-8"))
 
     def approve(self):
-        #self.transactionHashByte = self.transactionHash
+        self.transactionHashByte = self.transactionHash
         self.transactionHash = self.transactionHash.hexdigest()
         self.transactionSignature = base64.b64encode(
             self.transactionSignature).decode("ascii")

@@ -8,7 +8,7 @@ from Transaction import Transaction
 from DataConverter import *
 
 
-class BlockchainFactory:
+class BlockchainFactory():
     def __init__(self):
         pass
 
@@ -70,10 +70,10 @@ def test_shouldReveiceExpectedBlockRewards():
 
     # wallet2 has built 24 blocks, so it will
     # receive 24 block rewards as total.
-    assert 24 * 10 == wallet2.getBalance(blockchain)
+    assert 24 * blockchain.miningReward == wallet2.getBalance(blockchain)
 
 
-def test_shouldNotSendIfInsufficientFundInWallet():
+def test_shoulNotSendNegativeAmount():
     wallet1 = blockchainFactory.getRandWallet("person")
     blockchain = blockchainFactory.getBlockchainWithFundedWallet(
         0, 10, wallet1.publicKey, 10000)
@@ -89,7 +89,7 @@ def test_shouldNotSendIfInsufficientFundInWallet():
         err.value)
 
 
-def test_shoulNotSendNegativeAmount():
+def test_shouldNotSendIfInsufficientFundInWallet():
     blockchain = blockchainFactory.getBlockchain(2, 10)
     wallet1 = blockchainFactory.getRandWallet("person")
 
@@ -121,8 +121,43 @@ def test_shouldValidateTransactionCorrectly():
 
 
 def test_blockchainShouldBeValid():
-    pass
+    wallet1 = blockchainFactory.getRandWallet("person")
+    blockchain = blockchainFactory.getBlockchainWithFundedWallet(
+        2, 10, wallet1.publicKey, 1000000)
+
+    # Build 100 blocks:
+    for i in range(100):
+        blockchain.addTransaction(Transaction(
+            wallet1.publicKey, "someone", random.randint(1, 900), wallet1.privateKey))
+        blockchain.handleTransaction(wallet1.publicKey)
+
+    blockchain.validateBlockchain()
+    assert blockchain.validationFlag == True
 
 
-def test_allTransactionSignaturesShouldBeValid():
-    pass
+def test_shouldBeInvalidWhenAttemptIllegalChange():
+    wallet1 = blockchainFactory.getRandWallet("person")
+    blockchain = blockchainFactory.getBlockchainWithFundedWallet(
+        2, 10, wallet1.publicKey, 1000000)
+
+    # Build 100 blocks:
+    for i in range(100):
+        blockchain.addTransaction(Transaction(
+            wallet1.publicKey, "someone", random.randint(1, 900), wallet1.privateKey))
+        blockchain.handleTransaction(wallet1.publicKey)
+
+    # Illegal change:
+    # Create a hacker wallet with 0 coins:
+    wallet2 = blockchainFactory.getRandWallet("hacker")
+    blockchain.blockchain[3].blockTransactions.append(Transaction(
+        wallet2.publicKey, wallet1.publicKey, 1000, wallet2.privateKey))
+
+    # Now try to attempt a normal transaction:
+    with pytest.raises(Exception) as err:
+
+        blockchain.addTransaction(Transaction(
+            wallet1.publicKey, "someone", 10000, wallet1.privateKey))
+        blockchain.handleTransaction(wallet1.publicKey)
+
+    assert "Changed block properties found! The corresponding block is corrupted!" in str(
+        err.value)

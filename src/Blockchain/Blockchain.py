@@ -29,6 +29,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 '''
 
+from xml.dom import InvalidAccessErr
 from Crypto.Hash import SHA256
 from datetime import datetime
 import random
@@ -67,7 +68,8 @@ class Block():
     blockNonce = 0
     hashDifficulty = 0
     validationTime = None
-    blockTransactionCapacity = 100
+    validationHash = ''
+    blockTransactionCapacity = 1000
     blockTransactions = []
 
     # Each block has its unique hash string which is being generated
@@ -78,13 +80,14 @@ class Block():
         self.previousBlockHash = previousBlockHash
         self.blockTransactions = blockTransactions
         self.validationTime = datetime.now().strftime("%H:%M:%S")
-        self.generateBlockHash()
+        self.blockHash = self.generateBlockHash()
         self.proofOfWork()
+        self.validationHash = self.generateBlockHash()
 
     def generateBlockHash(self):
         stream = str(self.previousBlockHash) + self.validationTime + \
             str(self.blockTransactions) + str(self.blockNonce)
-        self.blockHash = SHA256.new(stream.encode('utf-8')).hexdigest()
+        return SHA256.new(stream.encode('utf-8')).hexdigest()
 
     # This is the block mining section. It generates hashes according to the difficulty
     # and guarantees the security of the blockchain with the work done.
@@ -94,7 +97,7 @@ class Block():
     def proofOfWork(self):
         initialTime = datetime.now()
         while self.blockHash[:self.hashDifficulty] != "0" * self.hashDifficulty:
-            self.generateBlockHash()
+            self.blockHash = self.generateBlockHash()
             self.blockNonce += 1
 
         finalTime = datetime.now() - initialTime
@@ -171,10 +174,23 @@ class Blockchain():
 
     def validateBlockchain(self):
         for i in range(len(self.blockchain) - 1):
-            if self.blockchain[i].blockHash != self.blockchain[i + 1].previousBlockHash:
-                print("Blockchain isn't valid!!!.\n")
-                self.validationFlag = False
+            try:
+                validationHash = self.blockchain[i].generateBlockHash()
+                if validationHash != self.blockchain[i].validationHash:
+                    self.validationFlag = False
+                    raise InvalidAccessErr()
+
+                if self.blockchain[i].blockHash != self.blockchain[i + 1].previousBlockHash:
+                    self.validationFlag = False
+                    raise Exception("Blockchain sequence isn't valid!")
+            except InvalidAccessErr:
+                self.lastBlockLog = "Changed block properties found!" + \
+                    "The corresponding block is corrupted! You may switch to a backup mirror blockchain."
+                raise InvalidAccessErr(
+                    "Changed block properties found! The corresponding block is corrupted!")
+            except:
                 self.handleInvalidBlock()
+
         self.validationFlag = True
 
     def handleInvalidBlock(self):
@@ -264,12 +280,10 @@ class Blockchain():
                 miningRewardAddress,
                 self.miningReward,
                 KEY_PAIR.private_key())
-
+            blockReward.approve()
             limitedTransactions.append(blockReward)
 
             self.newBlock(limitedTransactions.copy())
-
-        self.pendingTransactions.clear()
 
     def validateTransaction(self, newTransaction: Transaction, publicKey: str):
         transactionSigner = TransactionSignature()
