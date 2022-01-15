@@ -1,9 +1,9 @@
-# -----------------------------------------------------------------
-# This is my personal blockchain implementation.
-# There can be bugs or mistakes on some parts.
+# ------------------------------------------------------------------
+# This program is a basic and easy to use blockchain implementation.
+# There can be bugs or uncovered parts in unit tests.
 # Please be aware of the potential risks before using!
 # Developed by Berk Kırtay, all source code is under MIT License.
-# -----------------------------------------------------------------
+# ------------------------------------------------------------------
 
 '''
 MIT License
@@ -29,7 +29,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 '''
 
-from xml.dom import InvalidAccessErr
+from BlockchainExceptionHandler import *
 from Crypto.Hash import SHA256
 from datetime import datetime
 import random
@@ -121,7 +121,7 @@ class Blockchain():
         self.blockchain = [self.createGenesisBlock()]
         print("Blockchain has been initialized...")
         print(
-            f"Block mining difficulty is {hashDifficulty}.\nMiner reward per block is {miningReward}.")
+            f"Block mining difficulty is {hashDifficulty}.\nMiner reward for each block is {miningReward}.")
         print(
             f"Block Transaction capacity is {self.blockchain[-1].blockTransactionCapacity}")
 
@@ -178,17 +178,18 @@ class Blockchain():
                 validationHash = self.blockchain[i].generateBlockHash()
                 if validationHash != self.blockchain[i].validationHash:
                     self.validationFlag = False
-                    raise InvalidAccessErr()
+                    raise IllegalAccessError
 
                 if self.blockchain[i].blockHash != self.blockchain[i + 1].previousBlockHash:
                     self.validationFlag = False
-                    raise Exception("Blockchain sequence isn't valid!")
-            except InvalidAccessErr:
+                    raise BlockchainSequenceError(
+                        "Blockchain sequence isn't valid!")
+            except IllegalAccessError:
                 self.lastBlockLog = "Changed block properties found!" + \
                     "The corresponding block is corrupted! You may switch to a backup mirror blockchain."
-                raise InvalidAccessErr(
+                raise IllegalAccessError(
                     "Changed block properties found! The corresponding block is corrupted!")
-            except:
+            except BlockchainSequenceError:
                 self.handleInvalidBlock()
 
         self.validationFlag = True
@@ -214,17 +215,23 @@ class Blockchain():
     # in order to prevent balance errors.
 
     def addTransaction(self, newTransaction: Transaction):
+
+        # With this type checking, we prevent str and int
+        # blocks to mix (We cannot mix integers and strings).
+        if type(newTransaction.coins) is not int:
+            raise TransactionDataConflictError()
+
         transactionCoins = self.getBalance(newTransaction.source)
 
         if newTransaction.coins <= 0:
             self.lastBlockLog = "Transaction amount can't be zero or a negative value!"
             print(self.lastBlockLog)
-            raise ValueError(self.lastBlockLog)
+            raise BalanceError(self.lastBlockLog)
 
         if transactionCoins < newTransaction.coins:
             self.lastBlockLog = f"Insufficient coins in the source! {newTransaction.source} needs: {newTransaction.coins - transactionCoins}"
             print(self.lastBlockLog)
-            raise ValueError("Insufficient coins in the source!")
+            raise BalanceError("Insufficient coins in the source!")
 
         self.pendingTransactions.append(newTransaction)
 
@@ -270,6 +277,11 @@ class Blockchain():
                     nextTransaction.approve()
                     limitedTransactions.append(nextTransaction)
 
+                # else:
+                # TODO
+                # Blockchain can add invalid transactions to a blacklist
+                # to prevent the fraud wallet users form using blockchain again.
+
             # Block rewards can be paid from transaction fees.
             # To sign block reward transactions, we use a pregenerated
             # genesis key pair. This key pair is the authorized to
@@ -302,17 +314,11 @@ class Blockchain():
     def getBalance(self, addressofBalance: str):
         availableCoins = 0
 
-        # With try/catch block, we prevent chat and balance
-        # blocks to mix (We cannot mix integers and strings).
-
         for i in range(len(self.blockchain)):
             for j in range(len(self.blockchain[i].blockTransactions)):
-                try:
-                    if self.blockchain[i].blockTransactions[j].destination == addressofBalance:
-                        availableCoins += self.blockchain[i].blockTransactions[j].coins
-                    if self.blockchain[i].blockTransactions[j].source == addressofBalance:
-                        availableCoins -= self.blockchain[i].blockTransactions[j].coins
-                except:
-                    continue
+                if self.blockchain[i].blockTransactions[j].destination == addressofBalance:
+                    availableCoins += self.blockchain[i].blockTransactions[j].coins
+                if self.blockchain[i].blockTransactions[j].source == addressofBalance:
+                    availableCoins -= self.blockchain[i].blockTransactions[j].coins
 
         return availableCoins

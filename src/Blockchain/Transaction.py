@@ -3,6 +3,7 @@ from Crypto.Hash import SHA256
 from Crypto import Random
 from Crypto.PublicKey import RSA
 from Crypto.Signature import PKCS1_v1_5 as signer
+from BlockchainExceptionHandler import SignatureError
 import base64
 
 # Transaction class handles transaction data between
@@ -10,7 +11,7 @@ import base64
 # transaction.
 
 
-class Transaction():
+class Transaction:
     source = ''
     destination = ''
     coins = 0
@@ -28,7 +29,7 @@ class Transaction():
         self.transactionSignature = transactionSignature
         self.validationTime = validationTime
         self.isNew = False
-        return Transaction(source, destination, coins, "")
+        return Transaction(source, destination, coins, None)
 
     def __init__(self, source: str, destination: str, coins: float, sourcePrivateKey: str):
         self.source = source
@@ -79,9 +80,12 @@ class TransactionSignature:
 
     def validateTransaction(self, transactionHash, signedTransactionHash: bytes, publicKey: str) -> bool:
         publicKey = self.decodePublicKey(publicKey)
-        validator = signer.new(RSA.importKey(publicKey)).verify(
-            transactionHash, signedTransactionHash)
-        return validator
+        try:
+            validator = signer.new(RSA.importKey(publicKey)).verify(
+                transactionHash, signedTransactionHash)
+            return validator
+        except:
+            raise SignatureError()
 
     def decodeKeyPairs(self, key: str) -> bytes:
         return base64.b64decode(key)

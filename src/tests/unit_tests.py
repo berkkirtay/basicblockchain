@@ -1,4 +1,3 @@
-from sys import exc_info
 import pytest
 
 from Blockchain import Blockchain
@@ -8,7 +7,7 @@ from Transaction import Transaction
 from DataConverter import *
 
 
-class BlockchainFactory():
+class BlockchainFactory:
     def __init__(self):
         pass
 
@@ -28,6 +27,13 @@ class BlockchainFactory():
 
 
 blockchainFactory = BlockchainFactory()
+
+
+def test_blockchainsShouldBeUnique():
+    blockchain1 = blockchainFactory.getBlockchain(2, 10)
+    blockchain2 = blockchainFactory.getBlockchain(2, 10)
+    assert blockchain1.getCurrentBlock(
+    ).blockHash != blockchain2.getCurrentBlock().blockHash
 
 
 def test_shouldCreateTwoDifferentWalletsWithSameName():
@@ -93,7 +99,7 @@ def test_shouldNotSendIfInsufficientFundInWallet():
     blockchain = blockchainFactory.getBlockchain(2, 10)
     wallet1 = blockchainFactory.getRandWallet("person")
 
-    with pytest.raises(ValueError) as err:
+    with pytest.raises(BalanceError) as err:
 
         blockchain.addTransaction(Transaction(
             wallet1.publicKey, "null", 10, wallet1.privateKey))
@@ -118,6 +124,26 @@ def test_shouldValidateTransactionCorrectly():
     signature = validator.decodeKeyPairs(transaction.transactionSignature)
     assert validator.validateTransaction(
         transaction.transactionHashByte, signature, transaction.source) == True
+
+    transaction = Transaction(
+        wallet1.publicKey, "someone", 10, wallet1.privateKey)
+
+
+def test_shouldNotAddFraudTransactionToBlockchain():
+    wallet1 = blockchainFactory.getRandWallet("person")
+    wallet2 = blockchainFactory.getRandWallet("person")
+    blockchain = blockchainFactory.getBlockchainWithFundedWallet(
+        0, 10, wallet1.publicKey, 10000)
+
+    # Let's assume wallet2 is a fraud wallet and tries to
+    # attempt receiving a transaction to itself from wallet1
+    # with its own private key:
+    transaction = Transaction(
+        wallet1.publicKey, wallet2.publicKey, 10, wallet2.privateKey)
+    blockchain.addTransaction(transaction)
+    blockchain.handleTransaction("null")
+
+    assert wallet2.getBalance(blockchain) == 0
 
 
 def test_blockchainShouldBeValid():
@@ -153,11 +179,25 @@ def test_shouldBeInvalidWhenAttemptIllegalChange():
         wallet2.publicKey, wallet1.publicKey, 1000, wallet2.privateKey))
 
     # Now try to attempt a normal transaction:
-    with pytest.raises(Exception) as err:
+    with pytest.raises(IllegalAccessError) as err:
 
         blockchain.addTransaction(Transaction(
             wallet1.publicKey, "someone", 10000, wallet1.privateKey))
         blockchain.handleTransaction(wallet1.publicKey)
 
     assert "Changed block properties found! The corresponding block is corrupted!" in str(
+        err.value)
+
+
+def test_shouldRaiseErrWhenAttemptToUseDifferentDataType():
+    wallet1 = blockchainFactory.getRandWallet("person")
+    blockchain = blockchainFactory.getBlockchainWithFundedWallet(
+        2, 10, wallet1.publicKey, 1000000)
+
+    with pytest.raises(TransactionDataConflictError) as err:
+        blockchain.addTransaction(Transaction(
+            wallet1.publicKey, "null", "hi", wallet1.privateKey))
+        print(err.value)
+
+    assert TransactionDataConflictError().err_str in str(
         err.value)
