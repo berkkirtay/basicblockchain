@@ -72,10 +72,10 @@ wallet2.updateTransactions(blockchain)
 In the old version of blockchain, GUI is still available. 
 
 ### Wallet Creation
-![Enc1](https://github.com/trantorberk/basicblockchain/blob/main/gui-photos/photo1.png)
+![Enc1](https://github.com/trantorberk/basicblockchain/blob/main/gui_photos/photo1.png)
 
 ### Transactions
-![Enc1](https://github.com/trantorberk/basicblockchain/blob/main/gui-photos/photo2.png) 
+![Enc1](https://github.com/trantorberk/basicblockchain/blob/main/gui_photos/photo2.png) 
 
 ### Mining
-![Enc1](https://github.com/trantorberk/basicblockchain/blob/main/gui-photos/photo3.png)
+![Enc1](https://github.com/trantorberk/basicblockchain/blob/main/gui_photos/photo3.png)
