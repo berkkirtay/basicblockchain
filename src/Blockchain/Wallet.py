@@ -15,9 +15,11 @@ class Wallet():
     privateKey = ''
     coins = 0
     creationTime = None
+    keySize = 1024
 
     def __init__(self, ownerName: str):
         self.ownerName = ownerName
+        self.createNewWallet()
 
     def createNewWallet(self):
         self.creationTime = datetime.now().strftime("%H:%M:%S")
@@ -27,7 +29,7 @@ class Wallet():
 
     def generateKeyPair(self):
         randomGenerator = Random.new().read
-        keyPair = RSA.generate(1024, randomGenerator)
+        keyPair = RSA.generate(self.keySize, randomGenerator)
         privateKey = keyPair.exportKey('PEM')
         self.privateKey = base64.b64encode(privateKey).decode("ascii")
 
@@ -40,12 +42,31 @@ class Wallet():
     def exportKeyPair(self):
         keypair = {
             "wallet_user_name": self.ownerName,
-            "public_key": self.publicKey,
             "private_key": self.privateKey
         }
         pathlib.Path('./key_pair_exports').mkdir(exist_ok=True)
         with open('./key_pair_exports/' + self.ownerName + '_key_pair.json', 'w', encoding='utf-8') as f:
             json.dump(keypair, f, ensure_ascii=False, indent=4)
+
+    @classmethod
+    def importWallet(self, ownerName):
+        keypair = dict()
+        pathlib.Path('./key_pair_exports').mkdir(exist_ok=True)
+        with open('./key_pair_exports/' + ownerName + '_key_pair.json', 'r', encoding='utf-8') as f:
+            keypair = json.load(f)
+
+        keyPair = RSA.import_key(base64.b64decode(keypair["private_key"]))
+        private_key = keyPair.export_key('PEM')
+        public_key = keyPair.publickey().exportKey('PEM')
+
+        wallet = Wallet(ownerName)
+
+        wallet.privateKey = base64.b64encode(private_key).decode("ascii")
+        wallet.publicKey = base64.b64encode(public_key).decode("ascii")
+        wallet.publicKey = wallet.publicKey[87:-44]
+
+        print(f"Wallet {ownerName} is imported.")
+        return wallet
 
     def done(self):
         print(

@@ -18,10 +18,7 @@ blockchain = Blockchain(2, 10)
 # their transactions with their private key.
 
 wallet1 = Wallet("person1")
-wallet1.createNewWallet()
-
 wallet2 = Wallet("person2")
-wallet2.createNewWallet()
 
 # Transactions
 
