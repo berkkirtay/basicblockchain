@@ -5,20 +5,19 @@ from DataConverter import BlockDataIO
 import random
 
 
-blockchain = Blockchain(1, 10)
+blockchain = Blockchain(3, 10)
 
 # Creating random wallets
 
 wallets = []
 for i in range(25):
-    newWallet = Wallet("null")
-    newWallet.createNewWallet()
+    newWallet = Wallet("person")
     wallets.append(newWallet)
     blockchain.forceTransaction(newWallet.publicKey, 100000000)
 
 blockchain.handleTransaction(wallets[0].publicKey)
 
-for i in range(1, 500):
+for i in range(1, 200):
     randomWallet1 = wallets[random.randint(0, 24)]
     randomWallet2 = wallets[random.randint(0, 24)]
     blockchain.addTransaction(Transaction(

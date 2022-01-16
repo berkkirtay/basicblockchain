@@ -1,10 +1,10 @@
 import pytest
-
 from Blockchain import Blockchain
 from Transaction import TransactionSignature
 from Wallet import Wallet
 from Transaction import Transaction
 from DataConverter import *
+import random
 
 
 class BlockchainFactory:
@@ -17,13 +17,8 @@ class BlockchainFactory:
     def getBlockchainWithFundedWallet(self, hashDifficulty, miningReward, publicKey, amount):
         blockchain = Blockchain(hashDifficulty, miningReward)
         blockchain.forceTransaction(publicKey, amount)
-        blockchain.handleTransaction(publicKey)
+        blockchain.handleTransaction("null")
         return blockchain
-
-    def getRandWallet(self, walletName) -> Wallet:
-        wallet = Wallet(walletName)
-        wallet.createNewWallet()
-        return wallet
 
 
 blockchainFactory = BlockchainFactory()
@@ -37,54 +32,60 @@ def test_blockchainsShouldBeUnique():
 
 
 def test_shouldCreateTwoDifferentWalletsWithSameName():
-    wallet1 = blockchainFactory.getRandWallet("person")
-    wallet2 = blockchainFactory.getRandWallet("person")
+    wallet1 = Wallet("person")
+    wallet2 = Wallet("person")
     assert wallet1.privateKey != wallet2.privateKey
 
 
-def test_shouldSendExpectedAmounts():
-    wallet1 = blockchainFactory.getRandWallet("person1")
-    wallet2 = blockchainFactory.getRandWallet("person2")
+def test_importedWalletShouldBeWorking():
+    wallet1 = Wallet("test")
     blockchain = blockchainFactory.getBlockchainWithFundedWallet(
-        2, 10, wallet1.publicKey, 10000)
+        1, 10, wallet1.publicKey, 10000)
+    wallet2 = Wallet.importWallet("test")
+
+    assert 10000 == wallet2.getBalance(blockchain)
+    assert wallet1.privateKey == wallet2.privateKey
+
+
+def test_shouldSendExpectedAmounts():
+    wallet1 = Wallet("person1")
+    wallet2 = Wallet("person2")
+    blockchain = blockchainFactory.getBlockchainWithFundedWallet(
+        1, 10, wallet1.publicKey, 10000)
 
     blockchain.addTransaction(Transaction(
-        wallet1.publicKey, wallet2.publicKey, 10, wallet1.privateKey))
-    blockchain.addTransaction(Transaction(
-        wallet1.publicKey, wallet2.publicKey, 123, wallet1.privateKey))
-
-    blockchain.handleTransaction(wallet1.publicKey)
+        wallet1.publicKey, wallet2.publicKey, 599, wallet1.privateKey))
+    blockchain.handleTransaction("null")
 
     blockchain.addTransaction(Transaction(
-        wallet2.publicKey, wallet1.publicKey, 33, wallet2.privateKey))
+        wallet2.publicKey, "null", 99, wallet2.privateKey))
+    blockchain.handleTransaction("null")
 
-    blockchain.handleTransaction(wallet1.publicKey)
-
-    assert 100 == blockchain.getBalance(wallet2.publicKey)
+    assert 500 == wallet2.getBalance(blockchain)
 
 
 def test_shouldReveiceExpectedBlockRewards():
-    wallet1 = blockchainFactory.getRandWallet("person1")
-    wallet2 = blockchainFactory.getRandWallet("person2")
+    wallet1 = Wallet("person1")
+    wallet2 = Wallet("person2")
     blockchain = blockchainFactory.getBlockchainWithFundedWallet(
         0, 10, wallet1.publicKey, 10000)
 
-    for i in range(24):
+    for i in range(5):
         blockchain.addTransaction(Transaction(
             wallet1.publicKey, "null", 10, wallet1.privateKey))
         blockchain.handleTransaction(wallet2.publicKey)
 
-    # wallet2 has built 24 blocks, so it will
-    # receive 24 block rewards as total.
-    assert 24 * blockchain.miningReward == wallet2.getBalance(blockchain)
+    # wallet2 has built 5 blocks, so it will
+    # receive 5 block rewards totally.
+    assert 5 * blockchain.miningReward == wallet2.getBalance(blockchain)
 
 
 def test_shoulNotSendNegativeAmount():
-    wallet1 = blockchainFactory.getRandWallet("person")
+    wallet1 = Wallet("person")
     blockchain = blockchainFactory.getBlockchainWithFundedWallet(
         0, 10, wallet1.publicKey, 10000)
 
-    with pytest.raises(ValueError) as err:
+    with pytest.raises(BalanceError) as err:
 
         blockchain.addTransaction(Transaction(
             wallet1.publicKey, "null", -100, wallet1.privateKey))
@@ -97,7 +98,7 @@ def test_shoulNotSendNegativeAmount():
 
 def test_shouldNotSendIfInsufficientFundInWallet():
     blockchain = blockchainFactory.getBlockchain(2, 10)
-    wallet1 = blockchainFactory.getRandWallet("person")
+    wallet1 = Wallet("person")
 
     with pytest.raises(BalanceError) as err:
 
@@ -110,7 +111,7 @@ def test_shouldNotSendIfInsufficientFundInWallet():
 
 
 def test_shouldValidateTransactionCorrectly():
-    wallet1 = blockchainFactory.getRandWallet("person")
+    wallet1 = Wallet("person")
     blockchain = blockchainFactory.getBlockchainWithFundedWallet(
         0, 10, wallet1.publicKey, 10000)
 
@@ -125,13 +126,10 @@ def test_shouldValidateTransactionCorrectly():
     assert validator.validateTransaction(
         transaction.transactionHashByte, signature, transaction.source) == True
 
-    transaction = Transaction(
-        wallet1.publicKey, "someone", 10, wallet1.privateKey)
-
 
 def test_shouldNotAddFraudTransactionToBlockchain():
-    wallet1 = blockchainFactory.getRandWallet("person")
-    wallet2 = blockchainFactory.getRandWallet("person")
+    wallet1 = Wallet("person")
+    wallet2 = Wallet("person")
     blockchain = blockchainFactory.getBlockchainWithFundedWallet(
         0, 10, wallet1.publicKey, 10000)
 
@@ -147,34 +145,31 @@ def test_shouldNotAddFraudTransactionToBlockchain():
 
 
 def test_blockchainShouldBeValid():
-    wallet1 = blockchainFactory.getRandWallet("person")
+    wallet1 = Wallet("person")
     blockchain = blockchainFactory.getBlockchainWithFundedWallet(
-        2, 10, wallet1.publicKey, 1000000)
+        0, 10, wallet1.publicKey, 1000000)
 
-    # Build 100 blocks:
-    for i in range(100):
+    for i in range(5):
         blockchain.addTransaction(Transaction(
             wallet1.publicKey, "someone", random.randint(1, 900), wallet1.privateKey))
         blockchain.handleTransaction(wallet1.publicKey)
 
-    blockchain.validateBlockchain()
     assert blockchain.validationFlag == True
 
 
 def test_shouldBeInvalidWhenAttemptIllegalChange():
-    wallet1 = blockchainFactory.getRandWallet("person")
+    wallet1 = Wallet("person")
     blockchain = blockchainFactory.getBlockchainWithFundedWallet(
-        2, 10, wallet1.publicKey, 1000000)
+        0, 10, wallet1.publicKey, 100000)
 
-    # Build 100 blocks:
-    for i in range(100):
+    for i in range(5):
         blockchain.addTransaction(Transaction(
             wallet1.publicKey, "someone", random.randint(1, 900), wallet1.privateKey))
         blockchain.handleTransaction(wallet1.publicKey)
 
     # Illegal change:
     # Create a hacker wallet with 0 coins:
-    wallet2 = blockchainFactory.getRandWallet("hacker")
+    wallet2 = Wallet("hacker")
     blockchain.blockchain[3].blockTransactions.append(Transaction(
         wallet2.publicKey, wallet1.publicKey, 1000, wallet2.privateKey))
 
@@ -190,14 +185,13 @@ def test_shouldBeInvalidWhenAttemptIllegalChange():
 
 
 def test_shouldRaiseErrWhenAttemptToUseDifferentDataType():
-    wallet1 = blockchainFactory.getRandWallet("person")
+    wallet1 = Wallet("person")
     blockchain = blockchainFactory.getBlockchainWithFundedWallet(
-        2, 10, wallet1.publicKey, 1000000)
+        0, 10, wallet1.publicKey, 1000000)
 
     with pytest.raises(TransactionDataConflictError) as err:
         blockchain.addTransaction(Transaction(
-            wallet1.publicKey, "null", "hi", wallet1.privateKey))
-        print(err.value)
+            wallet1.publicKey, "null", "test message", wallet1.privateKey))
 
     assert TransactionDataConflictError().err_str in str(
         err.value)

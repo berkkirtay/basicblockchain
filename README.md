@@ -1,6 +1,6 @@
 # Basic Blockchain Implementation 
 
-A functional blockchain implementation in python. This library lets you initialize a blockchain and perform transactions between peers. This implementation uses the proof of work method to build new blocks. Transactions are signed with a 2048 bit RSA key pair and you can create new wallets with unique key pairs.
+A functional blockchain implementation in python. This library lets you initialize a blockchain and perform transactions between peers. This implementation uses the proof of work method to build new blocks. Transactions are signed with a 1024 bit RSA key pair and you can create new wallets with unique key pairs.
 I will keep improving this library as I learn more about blockchain technology.
 
 ### Current components: 
@@ -35,12 +35,8 @@ blockchain = Blockchain(2, 10)
 # generate new RSA key pair for each user.
 # These key pairs will be used as to sign and validate transactions.
 # A public key defines the address of the user.
-
 wallet1 = Wallet("person1")
-wallet1.createNewWallet()
-
 wallet2 = Wallet("person2")
-wallet2.createNewWallet()
 
 # -----------------------------------------------------------------
 # Transactions
