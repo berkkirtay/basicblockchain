@@ -30,6 +30,7 @@ SOFTWARE.
 '''
 
 from BlockchainExceptionHandler import *
+from BlockchainLogger import *
 from Crypto.Hash import SHA256
 from datetime import datetime
 import random
@@ -55,6 +56,8 @@ class GenesisBlockKeyProvider():
 
 
 KEY_PAIR = None
+
+initializeLogger()
 
 # Every block keeps previous block's hash for validation between blocks.
 # We create a hash code based on previous block's hash,
@@ -101,8 +104,8 @@ class Block():
             self.blockNonce += 1
 
         finalTime = datetime.now() - initialTime
-        print(
-            f"Block hash = {self.blockHash}\nis mined in {finalTime.total_seconds()} seconds.\n")
+        logging.info(
+            f"Block hash = {self.blockHash} is mined in {finalTime.total_seconds()} seconds.")
 
 
 class Blockchain():
@@ -119,13 +122,13 @@ class Blockchain():
         self.hashDifficulty = hashDifficulty
         self.miningReward = miningReward
         self.blockchain = [self.createGenesisBlock()]
-        print("Blockchain has been initialized...")
-        print(
-            f"Block mining difficulty is {hashDifficulty}.\nMiner reward for each block is {miningReward}.")
-        print(
+        logging.info("Blockchain has been initialized...")
+        logging.info(
+            f"Block hashing difficulty is {hashDifficulty}. Block reward is {miningReward}.")
+        logging.info(
             f"Block Transaction capacity is {self.blockchain[-1].blockTransactionCapacity}")
 
-        print("Genesis block is initialized successfully.\n")
+        logging.info("Genesis block is initialized successfully.")
 
     # Genesis block is the first node of the blockchain,
     # so, we generated a random string for the starting point(hash).
@@ -187,6 +190,7 @@ class Blockchain():
             except IllegalAccessError:
                 self.lastBlockLog = "Changed block properties found!" + \
                     "The corresponding block is corrupted! You may switch to a backup mirror blockchain."
+                logging.critical(f"IllegalAccessError: {self.lastBlockLog}")
                 raise IllegalAccessError(
                     "Changed block properties found! The corresponding block is corrupted!")
             except BlockchainSequenceError:
@@ -198,11 +202,13 @@ class Blockchain():
         while self.validationFlag == False:
             try:
                 self.blockchain.pop()
-                print(
-                    f"Trying to recover the blockchain to the previous version. Last block index is {len(self.blockchain)}\n")
+                self.lastBlockLog = f"Trying to recover the blockchain to the previous version. Last block index is {len(self.blockchain)}\n"
+                logging.WARNING(
+                    f"BlockchainSequenceError: {self.lastBlockLog}")
                 self.validateBlockchain()
             except:
-                print("There is no block left! Creating a new genesis block..")
+                self.lastBlockLog = "There is no block left! Creating a new genesis block.."
+                logging.critical(f"IllegalAccessError: {self.lastBlockLog}")
                 self.blockchain = [self.createGenesisBlock()]
                 break
         return
@@ -225,16 +231,17 @@ class Blockchain():
 
         if newTransaction.coins <= 0:
             self.lastBlockLog = "Transaction amount can't be zero or a negative value!"
-            print(self.lastBlockLog)
+            logging.warning(self.lastBlockLog)
             raise BalanceError(self.lastBlockLog)
 
         if transactionCoins < newTransaction.coins:
             self.lastBlockLog = f"Insufficient coins in the source! {newTransaction.source} needs: {newTransaction.coins - transactionCoins}"
-            print(self.lastBlockLog)
+            logging.warning(self.lastBlockLog)
             raise BalanceError("Insufficient coins in the source!")
 
         self.pendingTransactions.append(newTransaction)
-
+        logging.info(
+            f"A new transaction has been added to blockchain.")  # by {newTransaction.source}
         # ***Activate this to get only one transaction per block.***
         # self.handleTransaction("null")
 
@@ -251,7 +258,8 @@ class Blockchain():
                                      KEY_PAIR.private_key())
 
         self.pendingTransactions.append(newTransaction)
-        print(f"A forced transaction is added to the chain. Amount: {coins}")
+        logging.info(
+            f"A forced transaction is added to the chain. Amount: {coins}")
 
     # When there is pending transactions, those transactions
     # should be handled by a miner. This is implemented in the
@@ -303,7 +311,7 @@ class Blockchain():
             newTransaction.transactionHash, newTransaction.transactionSignature, publicKey)
 
         if validator == True:
-            print(
+            logging.info(
                 f'Transaction is validated! -> {newTransaction.transactionHash.hexdigest()}')
             return True
         return False

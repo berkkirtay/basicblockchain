@@ -4,6 +4,7 @@ from Crypto import Random
 import base64
 import json
 import pathlib
+import logging
 from Blockchain import Blockchain
 
 
@@ -65,15 +66,17 @@ class Wallet():
         wallet.publicKey = base64.b64encode(public_key).decode("ascii")
         wallet.publicKey = wallet.publicKey[87:-44]
 
-        print(f"Wallet {ownerName} is imported.")
+        logging.info(f"Wallet: A new wallet named {ownerName} is imported.")
         return wallet
 
     def done(self):
-        print(
-            f'A new public and private key pair is generated for : {self.ownerName}.')
-        print(
+        logging.info(
+            f'Wallet: A new public and private key pair is generated for : {self.ownerName}.')
+        logging.info("--------User Info Area--------")
+        logging.info(
             'Please back up your key pair in order to keep an access to your transactions and wallet.')
-        print(f'Your key pair is exported as a json file.\n')
+        logging.info(f'Your key pair is exported as a json file.')
+        logging.info("------------------------------")
 
     # Updating the Wallet's owner balance.
 
@@ -95,7 +98,8 @@ class WalletChecker():
     def addWallet(self, newWallet: Wallet):
         for Wallet in self.Wallets:
             if Wallet.publicAddress == newWallet.publicAddress:
-                print("You can't use an existed Wallet name!")
+                logging.warning(
+                    "WalletChecker: You can't use an existed Wallet name!")
                 return
 
         self.Wallets.append(newWallet)

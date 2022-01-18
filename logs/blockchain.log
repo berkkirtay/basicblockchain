@@ -1,0 +1,42 @@
+2022-01-18 15:57:45 [INFO] -------New logging session is initialized-------
+
+2022-01-18 15:57:45 [INFO] Block hash = 00dad23f3b96009e8b0b4fb398cf90b7e1f557125f94f0beb2b50c21f796233c is mined in 0.002 seconds.
+2022-01-18 15:57:45 [INFO] Blockchain has been initialized...
+2022-01-18 15:57:45 [INFO] Block hashing difficulty is 2. Block reward is 10.
+2022-01-18 15:57:45 [INFO] Block Transaction capacity is 1000
+2022-01-18 15:57:45 [INFO] Genesis block is initialized successfully.
+2022-01-18 15:57:45 [INFO] Wallet: A new public and private key pair is generated for : person1.
+2022-01-18 15:57:45 [INFO] --------User Info Area--------
+2022-01-18 15:57:45 [INFO] Please back up your key pair in order to keep an access to your transactions and wallet.
+2022-01-18 15:57:45 [INFO] Your key pair is exported as a json file.
+2022-01-18 15:57:45 [INFO] ------------------------------
+2022-01-18 15:57:45 [INFO] Wallet: A new public and private key pair is generated for : person2.
+2022-01-18 15:57:45 [INFO] --------User Info Area--------
+2022-01-18 15:57:45 [INFO] Please back up your key pair in order to keep an access to your transactions and wallet.
+2022-01-18 15:57:45 [INFO] Your key pair is exported as a json file.
+2022-01-18 15:57:45 [INFO] ------------------------------
+2022-01-18 15:57:45 [INFO] A forced transaction is added to the chain. Amount: 10000
+2022-01-18 15:57:45 [INFO] Transaction is validated! -> d8f7ca037e5a7c9f7de7bf1a4f2ff6e60fd19e058dad689449b016e9a8b53403
+2022-01-18 15:57:45 [INFO] Block hash = 008869f93689919030a6cd664da3ad1ec684494807cc9fc954ca54f4234c8568 is mined in 0.004998 seconds.
+2022-01-18 15:57:46 [INFO] A new transaction has been added to blockchain.
+2022-01-18 15:57:46 [INFO] A new transaction has been added to blockchain.
+2022-01-18 15:57:46 [INFO] A new transaction has been added to blockchain.
+2022-01-18 15:57:46 [INFO] A new transaction has been added to blockchain.
+2022-01-18 15:57:46 [INFO] A new transaction has been added to blockchain.
+2022-01-18 15:57:46 [INFO] A new transaction has been added to blockchain.
+2022-01-18 15:57:46 [INFO] A new transaction has been added to blockchain.
+2022-01-18 15:57:46 [INFO] A new transaction has been added to blockchain.
+2022-01-18 15:57:46 [INFO] A new transaction has been added to blockchain.
+2022-01-18 15:57:46 [INFO] Transaction is validated! -> 5040dd1641b92eae3059f12f531d652663305b1290217c93bf88925c0cade7bf
+2022-01-18 15:57:46 [INFO] Transaction is validated! -> cbd64e523f7425bcb61509707e1befd24a1535ac6501dd42eda1aa3a1bb0e5bf
+2022-01-18 15:57:46 [INFO] Transaction is validated! -> 99da466a355e96a4741c15c588baab5b82d1d46ebdd16fb3b3c9f0c7c0af1f32
+2022-01-18 15:57:46 [INFO] Transaction is validated! -> 0d5297a51068711aae224b216953c69bab18db6207724bef680817fbb60a2b77
+2022-01-18 15:57:46 [INFO] Transaction is validated! -> 3f21561ab265878e3843e0c27d4a21f042bbab7fb6dd90fe80b95574138d9f8b
+2022-01-18 15:57:46 [INFO] Transaction is validated! -> 43e51f094666912dcc87bbce91439df98d17bda688bc9d57c90cfae3d119b1fa
+2022-01-18 15:57:46 [INFO] Transaction is validated! -> 8992fbf87f39d41721e396cfa90e906b8032f4600aa035ad5078a6c9351ad59c
+2022-01-18 15:57:46 [INFO] Transaction is validated! -> 29860ce697ac4e38bffa638faf1276a57faf1968382559535d3ab82b106365ae
+2022-01-18 15:57:46 [INFO] Transaction is validated! -> 49ce49e04de614a4b7a6aa89d113b4043569b76876e3e9c80ed1cc12ba354b08
+2022-01-18 15:57:46 [INFO] Block hash = 007c88ffd4eb6a8e91afa2bd8bfabf0a0403de3c9fc4b3d39236df57f1c4716b is mined in 0.001014 seconds.
+2022-01-18 15:57:46 [INFO] A new transaction has been added to blockchain.
+2022-01-18 15:57:46 [INFO] Transaction is validated! -> c7af3a8addac4545e398e82cc1813381ad8b8872c8fdc3a7c35486b4d737d5d2
+2022-01-18 15:57:46 [INFO] Block hash = 003ba6fccbb1a9880a77496e5730eb1a6878d6a7bdf39eab0b3657bb349ca6b6 is mined in 0.001001 seconds.
