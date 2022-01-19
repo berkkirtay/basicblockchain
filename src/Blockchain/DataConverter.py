@@ -29,7 +29,8 @@ class DataConverter:
                 newTransaction = {
                     "source":  blockTransaction.source,
                     "destination": blockTransaction.destination,
-                    "balance": blockTransaction.coins,
+                    "balance": blockTransaction.balance,
+                    "transactionMessage": blockTransaction.transactionMessage,
                     "transactionHash": blockTransaction.transactionHash,
                     "transactionSignature": blockTransaction.transactionSignature,
                     "validationTime": blockTransaction.validationTime
@@ -72,6 +73,7 @@ class DataConverter:
                     transaction["source"],
                     transaction["destination"],
                     transaction["balance"],
+                    transaction["transactionMessage"],
                     transaction["transactionHash"],
                     transaction["transactionSignature"],
                     transaction["validationTime"]

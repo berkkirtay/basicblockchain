@@ -14,7 +14,7 @@ class Wallet():
     ownerName = ''
     publicKey = ''  # aka source
     privateKey = ''
-    coins = 0
+    balance = 0
     creationTime = None
     keySize = 1024
 
@@ -81,12 +81,12 @@ class Wallet():
     # Updating the Wallet's owner balance.
 
     def updateTransactions(self, blockchain: Blockchain):
-        self.coins = blockchain.getBalance(self.publicKey)
-        return f'Coins in the Wallet: {self.coins}'
+        self.balance = blockchain.getBalance(self.publicKey)
+        return f'balance in the Wallet: {self.balance}'
 
     def getBalance(self, blockchain) -> int:
         self.updateTransactions(blockchain)
-        return self.coins
+        return self.balance
 
 
 class WalletChecker():

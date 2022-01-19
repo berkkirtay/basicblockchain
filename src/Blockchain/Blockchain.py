@@ -222,20 +222,20 @@ class Blockchain():
 
         # With this type checking, we prevent str and int
         # blocks to mix (We cannot mix integers and strings).
-        if type(newTransaction.coins) is not int:
+        if type(newTransaction.balance) is not int:
             raise TransactionDataConflictError()
 
-        transactionCoins = self.getBalance(newTransaction.source)
+        transactionbalance = self.getBalance(newTransaction.source)
 
-        if newTransaction.coins <= 0:
+        if newTransaction.balance <= 0:
             self.lastBlockLog = "Transaction amount can't be zero or a negative value!"
             logging.warning(self.lastBlockLog)
             raise BalanceError(self.lastBlockLog)
 
-        if transactionCoins < newTransaction.coins:
-            self.lastBlockLog = f"Insufficient coins in the source! {newTransaction.source} needs: {newTransaction.coins - transactionCoins}"
+        if transactionbalance < newTransaction.balance:
+            self.lastBlockLog = f"Insufficient balance in the source! {newTransaction.source} needs: {newTransaction.balance - transactionbalance}"
             logging.warning(self.lastBlockLog)
-            raise BalanceError("Insufficient coins in the source!")
+            raise BalanceError("Insufficient balance in the source!")
 
         self.pendingTransactions.append(newTransaction)
         logging.info(
@@ -249,15 +249,15 @@ class Blockchain():
     # Forcing transactions is only for testing. It creates a
     # transaction with the genesis block's signature.
 
-    def forceTransaction(self, publicAddress: str, coins: float):
+    def forceTransaction(self, publicAddress: str, balance: float):
         newTransaction = Transaction(KEY_PAIR.public_key(),
                                      publicAddress,
-                                     coins,
+                                     balance,
                                      KEY_PAIR.private_key())
 
         self.pendingTransactions.append(newTransaction)
         logging.info(
-            f"A forced transaction is added to the chain. Amount: {coins}")
+            f"A forced transaction is added to the chain. Amount: {balance}")
 
     # When there is pending transactions, those transactions
     # should be handled by a miner. This is implemented in the
@@ -318,13 +318,13 @@ class Blockchain():
     # with checking all Transactions within the blockchain.
 
     def getBalance(self, addressofBalance: str):
-        availableCoins = 0
+        availablebalance = 0
 
         for i in range(len(self.blockchain)):
             for j in range(len(self.blockchain[i].blockTransactions)):
                 if self.blockchain[i].blockTransactions[j].destination == addressofBalance:
-                    availableCoins += self.blockchain[i].blockTransactions[j].coins
+                    availablebalance += self.blockchain[i].blockTransactions[j].balance
                 if self.blockchain[i].blockTransactions[j].source == addressofBalance:
-                    availableCoins -= self.blockchain[i].blockTransactions[j].coins
+                    availablebalance -= self.blockchain[i].blockTransactions[j].balance
 
-        return availableCoins
+        return availablebalance

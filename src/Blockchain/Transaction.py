@@ -14,7 +14,7 @@ import base64
 class Transaction:
     source = ''
     destination = ''
-    coins = 0
+    balance = 0
     transactionMessage = ''
     transactionHash = ''
     transactionSignature = ''
@@ -22,20 +22,23 @@ class Transaction:
     isNew = True
 
     @classmethod
-    def initializeTransaction(self, source, destination, coins, transactionHash, transactionSignature, validationTime):
+    def initializeTransaction(self, source, destination, balance, transactionMessage, transactionHash, transactionSignature, validationTime):
         self.source = source
         self.destination = destination
-        self.coins = coins
+        self.balance = balance
+        self.transactionMessage = transactionMessage
         self.transactionHash = transactionHash
         self.transactionSignature = transactionSignature
         self.validationTime = validationTime
         self.isNew = False
-        return Transaction(source, destination, coins, None)
+        return Transaction(source, destination, balance, None)
 
-    def __init__(self, source: str, destination: str, coins: float, sourcePrivateKey: str):
+    def __init__(self, source: str, destination: str, balance: float, sourcePrivateKey: str, transactionMessage=None):
         self.source = source
         self.destination = destination
-        self.coins = coins
+        self.balance = balance
+        if transactionMessage == None:
+            self.transactionMessage = f"Transaction value: {balance}, sent by {source} to {destination}"
         if self.isNew == True:
             self.setTransaction(sourcePrivateKey)
 
@@ -49,7 +52,7 @@ class Transaction:
 
     def generateTransactionHash(self):
         stream = self.source + self.destination + \
-            str(self.coins) + self.validationTime
+            str(self.balance) + self.validationTime
         self.transactionHash = SHA256.new(stream.encode("utf-8"))
 
     def approve(self):

@@ -107,7 +107,7 @@ def test_shouldNotSendIfInsufficientFundInWallet():
 
         blockchain.handleTransaction(wallet1.publicKey)
 
-    assert "Insufficient coins in the source!" in str(err.value)
+    assert "Insufficient balance in the source!" in str(err.value)
 
 
 def test_shouldValidateTransactionCorrectly():
