@@ -15,6 +15,7 @@ class Transaction:
     source = ''
     destination = ''
     coins = 0
+    transactionMessage = ''
     transactionHash = ''
     transactionSignature = ''
     validationTime = None

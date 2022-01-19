@@ -71,7 +71,6 @@ class Block():
     blockNonce = 0
     hashDifficulty = 0
     validationTime = None
-    validationHash = ''
     blockTransactionCapacity = 1000
     blockTransactions = []
 
@@ -85,7 +84,6 @@ class Block():
         self.validationTime = datetime.now().strftime("%H:%M:%S")
         self.blockHash = self.generateBlockHash()
         self.proofOfWork()
-        self.validationHash = self.generateBlockHash()
 
     def generateBlockHash(self):
         stream = str(self.previousBlockHash) + self.validationTime + \
@@ -100,8 +98,8 @@ class Block():
     def proofOfWork(self):
         initialTime = datetime.now()
         while self.blockHash[:self.hashDifficulty] != "0" * self.hashDifficulty:
-            self.blockHash = self.generateBlockHash()
             self.blockNonce += 1
+            self.blockHash = self.generateBlockHash()
 
         finalTime = datetime.now() - initialTime
         logging.info(
@@ -179,7 +177,7 @@ class Blockchain():
         for i in range(len(self.blockchain) - 1):
             try:
                 validationHash = self.blockchain[i].generateBlockHash()
-                if validationHash != self.blockchain[i].validationHash:
+                if validationHash != self.blockchain[i].blockHash:
                     self.validationFlag = False
                     raise IllegalAccessError
 
