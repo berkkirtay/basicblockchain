@@ -1,6 +1,6 @@
 import pathlib
-from Blockchain import *
-from Transaction import Transaction
+from src.Blockchain.Blockchain import Blockchain, Block
+from src.Transaction.Transaction import Transaction
 
 import json
 

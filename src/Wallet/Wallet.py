@@ -5,7 +5,7 @@ import base64
 import json
 import pathlib
 import logging
-from Blockchain import Blockchain
+from src.Blockchain.Blockchain import Blockchain
 
 
 # A general purpose wallet for blockchain.

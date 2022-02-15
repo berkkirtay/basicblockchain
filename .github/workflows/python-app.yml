@@ -13,16 +13,17 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    
     env:
-      COVERAGE_SINGLE=70
-      COVERAGE_TOTAL=90
+      COVERAGE_SINGLE: 70
+      COVERAGE_TOTAL: 90
 
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Python 3.10
+    - name: Set up Python 3.9
       uses: actions/setup-python@v2
       with:
-        python-version: "3.10"
+        python-version: "3.9"
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -34,22 +35,45 @@ jobs:
       id: pytester-cov
       uses: alexanderdamiani/pytester-cov@v1.2.3
       with:
-        pytest-root-dir: 'src/Blockchain'
-        cov-omit-list: 'Unit_tests.py'
+        pytest-root-dir: '/tests/'
+        cov-omit-list: 'Transaction_between_wallets_test.py, Blockchain_data_IO_test.py'
         cov-threshold-single: ${{ env.COVERAGE_SINGLE }}
         cov-threshold-total: ${{ env.COVERAGE_TOTAL }}
         
+    - name: Coverage single fail - new issue
+      if: ${{ steps.pytester-cov.outputs.cov-threshold-single-fail == 'true' }}
+      uses: nashmaniac/create-issue-action@v1.1
+      with:
+        title: Pytest coverage single falls below minimum ${{ env.COVERAGE_SINGLE }}
+        token: ${{secrets.GITHUB_TOKEN}}
+        assignees: ${{github.actor}}
+        labels: workflow-failed
+        body: ${{ steps.pytester-cov.outputs.output-table }}
+
+    - name: Coverage single fail - exit
+      if: ${{ steps.pytester-cov.outputs.cov-threshold-single-fail == 'true' }}
+      run: |
+        echo "cov single fail ${{ steps.pytester-cov.outputs.cov-threshold-single-fail }}"
+        exit 1
+
+    - name: Coverage total fail - new issue
+      if: ${{ steps.pytester-cov.outputs.cov-threshold-total-fail == 'true' }}
+      uses: nashmaniac/create-issue-action@v1.1
+      with:
+        title: Pytest coverage total falls below minimum ${{ env.COVERAGE_TOTAL }}
+        token: ${{secrets.GITHUB_TOKEN}}
+        assignees: ${{github.actor}}
+        labels: workflow-failed
+        body: ${{ steps.pytester-cov.outputs.output-table }}
+
+    - name: Coverage total fail - exit
+      if: ${{ steps.pytester-cov.outputs.cov-threshold-total-fail == 'true' }}
+      run: |
+        echo "cov single fail ${{ steps.pytester-cov.outputs.cov-threshold-total-fail }}"
+        exit 1
+
     - name: Commit pytest coverage table
       uses: peter-evans/commit-comment@v1
       with:
         body: ${{ steps.pytester-cov.outputs.output-table }}
 
-    - name: Lint with flake8
-      run: |
-        # stop the build if there are Python syntax errors or undefined names
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-    - name: Test with pytest
-      run: |
-        pytest src/Blockchain/Unit_tests.py
