@@ -1,4 +1,4 @@
-# Basic Blockchain Implementation 
+# Blockchain Applications and Implementation in Python
 [![Unit Tests](https://github.com/berkkirtay/basicblockchain/actions/workflows/python-app.yml/badge.svg)](https://github.com/berkkirtay/basicblockchain/actions/workflows/python-app.yml)
 ![Coverage](https://img.shields.io/codecov/c/github/berkkirtay/basicblockchain)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
