@@ -1,18 +1,22 @@
 # Blockchain Applications and Implementation in Python
-[![Unit Tests](https://github.com/berkkirtay/basicblockchain/actions/workflows/python-app.yml/badge.svg)](https://github.com/berkkirtay/basicblockchain/actions/workflows/python-app.yml)
-![Coverage](https://img.shields.io/codecov/c/github/berkkirtay/basicblockchain)
+[![Unit Tests](https://github.com/berkkirtay/basicblockchain/actions/workflows/python-app.yml/badge.svg)](https://github.com/berkkirtay/basicblockchain/actions/workflows/python-app.yml) 
+![Coverage](https://img.shields.io/codecov/c/github/berkkirtay/basicblockchain) 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A functional blockchain implementation in python. This library lets you initialize a blockchain and perform transactions between peers. This implementation uses the proof of work method to build new blocks. Transactions are signed with a 1024 bit RSA key pair and you can create new wallets with unique key pairs.
-I will keep improving this library as I learn more about blockchain technology.
+I will keep working on this library as I learn more about blockchain technology.
 
 ### Current components: 
 - Blockchain implementation with user wallets
 - Blockchain validators and transaction signatures
+- Block mining rewards for block miners
+- Export and import module for blockchain data
+- Unit tests with GitHub Workflow
 - P2P blockchain nodes (Still under development)
-- Basic export and import module for blockchain data
+
+### Old Version Components
 - Blockchain based voting system and chat module
-- Test GUI for basic wallet operations 
+- Test GUI for basic wallet operations in the old version
  
 
 ## Basic Usage 
@@ -20,8 +24,6 @@ I will keep improving this library as I learn more about blockchain technology.
 ### Transaction Between Two Peers in Blockchain:
 
 ```python
-# Imports![badge](https://user-images.githubusercontent.com/56089152/153960292-112b658a-ff38-4e8c-984f-947a82185cf9.svg)
-
 from Blockchain import Blockchain
 from Wallet import Wallet
 from Transaction import Transaction
