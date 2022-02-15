@@ -1,5 +1,6 @@
 # Basic Blockchain Implementation 
 [![Unit Tests](https://github.com/berkkirtay/basicblockchain/actions/workflows/python-app.yml/badge.svg)](https://github.com/berkkirtay/basicblockchain/actions/workflows/python-app.yml)
+![Coverage](https://img.shields.io/codecov/c/github/berkkirtay/basicblockchain)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A functional blockchain implementation in python. This library lets you initialize a blockchain and perform transactions between peers. This implementation uses the proof of work method to build new blocks. Transactions are signed with a 1024 bit RSA key pair and you can create new wallets with unique key pairs.
