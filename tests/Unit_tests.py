@@ -175,7 +175,6 @@ def test_shouldBeInvalidWhenAttemptIllegalChange():
 
     # Now try to attempt a normal transaction:
     with pytest.raises(IllegalAccessError) as err:
-
         blockchain.addTransaction(Transaction(
             wallet1.publicKey, "someone", 10000, wallet1.privateKey))
         blockchain.handleTransaction(wallet1.publicKey)

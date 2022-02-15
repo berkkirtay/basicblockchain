@@ -179,7 +179,7 @@ class Blockchain():
                 validationHash = self.blockchain[i].generateBlockHash()
                 if validationHash != self.blockchain[i].blockHash:
                     self.validationFlag = False
-                    raise IllegalAccessError
+                    raise IllegalAccessError()
 
                 if self.blockchain[i].blockHash != self.blockchain[i + 1].previousBlockHash:
                     self.validationFlag = False
@@ -265,6 +265,7 @@ class Blockchain():
 
     def handleTransaction(self, miningRewardAddress: str):
         # Every block has a limited space for the transactions.
+        self.validateBlockchain()
         while not len(self.pendingTransactions) == 0:
             limitedTransactions = []
             transactionsSize = 0
