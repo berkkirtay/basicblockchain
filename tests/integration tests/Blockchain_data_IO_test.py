@@ -1,7 +1,7 @@
-from Blockchain import Blockchain
-from Wallet import Wallet
-from Transaction import Transaction
-from DataConverter import BlockDataIO
+from src.Blockchain.Blockchain import Blockchain
+from src.Wallet.Wallet import Wallet
+from src.Transaction.Transaction import Transaction
+from src.DataConverter.DataConverter import BlockDataIO
 import random
 
 
