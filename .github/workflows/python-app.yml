@@ -35,7 +35,7 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Build coverage file and test
       run: |
-       pytest tests/Unit_tests.py --cov=src --cov-config=.coveragerc --cov-report=xml > pytest-coverage.xml
+       pytest tests/Unit_tests.py --cov=src --cov-config=.coveragerc --cov-report=xml > ./coverage/reports/pytest-coverage.xml
     
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v2
