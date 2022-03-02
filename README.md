@@ -3,7 +3,7 @@
 ![Coverage](https://img.shields.io/codecov/c/github/berkkirtay/basicblockchain) 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A functional blockchain implementation in python. This library lets you initialize a blockchain and perform transactions between peers. This implementation uses the proof of work method to build new blocks. Transactions are signed with a 1024 bit RSA key pair and you can create new wallets with unique key pairs.
+A functional proof of work based blockchain implementation in python. This library lets you initialize a blockchain and perform transactions between peers. This implementation uses the proof of work method to build new blocks. Transactions are signed with a 1024 bit RSA key pair and you can create new wallets with unique key pairs.
 I will keep working on this library as I learn more about blockchain technology.
 
 ### Current components: 
@@ -30,7 +30,7 @@ from Transaction import Transaction
 # -----------------------------------------------------------------
 # Initialize the blockchain:
 
-# Mining Difficulty and reward shuld be passed as arguments.
+# Mining Difficulty and reward should be passed as arguments.
 # A genesis block will be mined after initialization.
 blockchain = Blockchain(2, 10)
 
