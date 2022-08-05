@@ -1,10 +1,12 @@
-# Blockchain Applications and Implementation in Python (OLD VERSION **)
+# A Proof of Work Based Blockchain Implementation in Python
+**(OLD VERSION)** 
+
 [![Unit Tests](https://github.com/berkkirtay/basicblockchain/actions/workflows/python-app.yml/badge.svg)](https://github.com/berkkirtay/basicblockchain/actions/workflows/python-app.yml) 
 ![Coverage](https://img.shields.io/codecov/c/github/berkkirtay/basicblockchain) 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A functional proof of work based blockchain implementation in python. This library lets you initialize a blockchain and perform transactions between peers. This implementation uses the proof of work method to build new blocks. Transactions are signed with a 1024 bit RSA key pair and you can create new wallets with unique key pairs.
-I will keep working on this library as I learn more about blockchain technology.
+**This library lets you initialize a blockchain and perform transactions between peers. This implementation uses the proof of work method to build new blocks. Transactions are signed with a 1024 bit RSA key pair and you can create new wallets with unique key pairs.
+I will keep working on this library as I find new features for this implementation.** 
 
 ### Current components: 
 - Blockchain implementation with user wallets
