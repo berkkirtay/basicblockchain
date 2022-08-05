@@ -1,6 +1,12 @@
+# ----------------------------------------
+# Functional unit tests for blockchain
+# Copyright (c) 2022 Berk Kırtay
+# ----------------------------------------
+
 from src.DataConverter.DataConverter import BlockDataIO
 from src.Wallet.Wallet import Wallet
-from src.Transaction.Transaction import Transaction, TransactionSignature
+from src.Transaction.Transaction import Transaction
+from src.Transaction.TransactionSignature import  TransactionSignature
 from src.Blockchain.Blockchain import Blockchain
 from src.BlockchainExceptionHandler.BlockchainExceptionHandler import *
 import random

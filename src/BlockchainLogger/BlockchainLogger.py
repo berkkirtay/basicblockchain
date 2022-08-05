@@ -1,8 +1,9 @@
+# Copyright (c) 2022 Berk Kırtay
+
 from cmath import log
 import logging
 import json
 import sys
-
 
 def initializeLogger():
     logger_level = logging.CRITICAL

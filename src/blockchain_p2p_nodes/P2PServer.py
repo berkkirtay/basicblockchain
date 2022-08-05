@@ -1,4 +1,7 @@
-# This script hasn't been done yet..
+# ----------------------------------------
+# Copyright (c) 2022 Berk Kırtay
+# This module is still under development.
+# ----------------------------------------
 
 from hashlib import new
 import socket

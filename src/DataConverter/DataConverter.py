@@ -1,9 +1,13 @@
+# --------------------------------------
+# A data converter module that
+# provides blockchain IO between peers.
+# Copyright (c) 2022 Berk Kırtay
+# --------------------------------------
+
 import pathlib
 from src.Blockchain.Blockchain import Blockchain, Block
 from src.Transaction.Transaction import Transaction
-
 import json
-
 
 class DataConverter:
     def dumpBlochcainDataAsStr(self, blockchain) -> str:

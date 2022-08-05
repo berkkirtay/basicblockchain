@@ -1,3 +1,9 @@
+# ----------------------------------------
+# A general purpose wallet for blockchain.
+# Copyright (c) 2022 Berk Kırtay
+# ----------------------------------------
+
+from src.Blockchain.Blockchain import Blockchain
 from datetime import datetime
 from Crypto.PublicKey import RSA
 from Crypto import Random
@@ -5,10 +11,6 @@ import base64
 import json
 import pathlib
 import logging
-from src.Blockchain.Blockchain import Blockchain
-
-
-# A general purpose wallet for blockchain.
 
 class Wallet():
     ownerName = ''

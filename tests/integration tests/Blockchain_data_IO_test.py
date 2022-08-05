@@ -1,3 +1,5 @@
+# Copyright (c) 2022 Berk Kırtay
+
 from src.Blockchain.Blockchain import Blockchain
 from src.Wallet.Wallet import Wallet
 from src.Transaction.Transaction import Transaction

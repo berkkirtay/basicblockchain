@@ -1,3 +1,5 @@
+# Copyright (c) 2022 Berk Kırtay
+
 from Blockchain import *
 from Wallet import *
 from Transaction import Transaction

@@ -1,14 +1,7 @@
-# ------------------------------------------------------------------
-# This program is a basic and easy to use blockchain implementation.
-# There can be bugs or uncovered parts in unit tests.
-# Please be aware of the potential risks before using!
-# Developed by Berk Kırtay, all source code is under MIT License.
-# ------------------------------------------------------------------
-
 '''
 MIT License
 
-Copyright (c) 2021 Berk Kırtay
+Copyright (c) 2022 Berk Kırtay
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -29,15 +22,22 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 '''
 
+# ------------------------------------------------------------------
+# This program is a basic and easy to use blockchain implementation.
+# There can be bugs or uncovered parts in unit tests.
+# Please be aware of the potential risks before using!
+# Developed by Berk Kırtay, all source code is under MIT License.
+# ------------------------------------------------------------------
+
+
 from src.BlockchainExceptionHandler.BlockchainExceptionHandler import *
 from src.BlockchainLogger.BlockchainLogger import initializeLogger, logging
+from src.Transaction.Transaction import Transaction
+from src.Transaction.TransactionSignature import  TransactionSignature, generateGenesisSignerKeyPair
 from Crypto.Hash import SHA256
 from datetime import datetime
 import random
 import string
-
-from src.Transaction.Transaction import TransactionSignature, Transaction, generateGenesisSignerKeyPair
-
 
 class GenesisBlockKeyProvider():
     GENESIS_BLOCK_PRIVATE_KEY = ""
@@ -54,7 +54,6 @@ class GenesisBlockKeyProvider():
     def public_key(self) -> str:
         return self.GENESIS_BLOCK_PUBLIC_KEY
 
-
 KEY_PAIR = None
 
 initializeLogger()
@@ -63,7 +62,6 @@ initializeLogger()
 # We create a hash code based on previous block's hash,
 # block's validation time and transactions.
 # This method is basically bitcoin's consensus approach
-
 
 class Block():
     previousBlockHash = ''

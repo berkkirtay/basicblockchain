@@ -1,3 +1,4 @@
+# Copyright (c) 2022 Berk Kırtay
 
 class IllegalAccessError(Exception):
     def __call__(self, *args) -> Exception:

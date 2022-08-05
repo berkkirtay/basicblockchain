@@ -29,40 +29,44 @@ from Wallet import Wallet
 from Transaction import Transaction
 # -----------------------------------------------------------------
 # Initialize the blockchain:
-
 # Mining Difficulty and reward should be passed as arguments.
 # A genesis block will be mined after initialization.
+
 blockchain = Blockchain(2, 10)
 
 # -----------------------------------------------------------------
 # Creating two new wallets:
-
 # We generate two new user wallets. Wallet will
-# generate new RSA key pair for each user.
-# These key pairs will be used as to sign and validate transactions.
+# generate a new RSA key pair for each user.
+# These key pairs will be used to sign and validate transactions.
 # A public key defines the address of the user.
+
 wallet1 = Wallet("person1")
 wallet2 = Wallet("person2")
 
 # -----------------------------------------------------------------
 # Transactions
-
 # Force transaction to person1:
+
 blockchain.forceTransaction(wallet1.publicKey, 1000)
 
 # Mine the pending transaction:
+
 blockchain.handleTransaction(wallet2.publicKey)
 
 # Transaction between two wallets:
-# Sender signs the transaction with his private key and this 
-# signature will be validated to make sure if the sender is the real sender.
+# Sender signs the transaction with his private key and the transaction
+# will be validated by its signature to make sure if the sender is the real sender.
+
 blockchain.addTransaction(Transaction(
     wallet1.publicKey, wallet2.publicKey, 10, wallet1.privateKey))
 
 # Miner gains the block mining rewards.
+
 blockchain.handleTransaction(wallet2.publicKey)
 
 # Updating balances of users:
+
 wallet1.updateTransactions(blockchain)
 wallet2.updateTransactions(blockchain)
 
