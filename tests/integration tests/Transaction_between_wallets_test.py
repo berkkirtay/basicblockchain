@@ -29,7 +29,7 @@ wallet2 = Wallet("person2")
 blockchain.forceTransaction(wallet1.publicKey, 10000)
 
 # Mine the pending transaction:
-blockchain.handleTransaction("null")
+blockchain.handleTransactions("null")
 
 # wallet1 sends 295 coins to wallet2.
 for i in range(1, 10):
@@ -37,14 +37,14 @@ for i in range(1, 10):
         wallet1.publicKey, wallet2.publicKey, i * i, wallet1.privateKey))
 
 # Miner gains the block mining rewards.
-blockchain.handleTransaction(wallet2.publicKey)
+blockchain.handleTransactions(wallet2.publicKey)
 
 # Transaction between two wallets:
 
 blockchain.addTransaction(Transaction(
     wallet1.publicKey, wallet2.publicKey, 10, wallet1.privateKey))
 
-blockchain.handleTransaction(wallet2.publicKey)
+blockchain.handleTransactions(wallet2.publicKey)
 
 # Updating balances of users:
 wallet1.updateTransactions(blockchain)

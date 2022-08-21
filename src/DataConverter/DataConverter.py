@@ -9,6 +9,7 @@ from src.Blockchain.Blockchain import Blockchain, Block
 from src.Transaction.Transaction import Transaction
 import json
 
+
 class DataConverter:
     def dumpBlochcainDataAsStr(self, blockchain) -> str:
         data = self.dumpBlockchainData(blockchain)
@@ -25,6 +26,7 @@ class DataConverter:
                 "blockHash": block.blockHash,
                 "blockNonce": block.blockNonce,
                 "hashDifficulty": block.hashDifficulty,
+                "blockFee": block.blockFee,
                 "validationTime": block.validationTime
             }
 
@@ -34,6 +36,8 @@ class DataConverter:
                     "source":  blockTransaction.source,
                     "destination": blockTransaction.destination,
                     "balance": blockTransaction.balance,
+                    "gas": blockTransaction.gas,
+                    "fee": blockTransaction.fee,
                     "transactionMessage": blockTransaction.transactionMessage,
                     "transactionHash": blockTransaction.transactionHash,
                     "transactionSignature": blockTransaction.transactionSignature,
@@ -48,7 +52,8 @@ class DataConverter:
 
         jsonData = {
             "HashDifficulty": blockchain.hashDifficulty,
-            "MiningReward": blockchain.miningReward,
+            "GasPrice": blockchain.gasPrice,
+            "ChainSize": blockchain.chainSize,
             "Blocks": blocks.copy()
         }
 
@@ -58,9 +63,9 @@ class DataConverter:
         blockchainData = json.loads(blockchainData)
 
         hashDifficulty = blockchainData["HashDifficulty"]
-        miningReward = blockchainData["MiningReward"]
+        gasPrice = blockchainData["GrasPrice"]
 
-        loadedBlockchain = Blockchain(hashDifficulty, miningReward)
+        loadedBlockchain = Blockchain(hashDifficulty, gasPrice)
         loadedBlockchain.transactions = []
         loadedBlockchain.blockchain = []
 
@@ -70,6 +75,7 @@ class DataConverter:
             tempBlock.hashDifficulty = block["block"]["hashDifficulty"]
             tempBlock.blockHash = block["block"]["blockHash"]
             tempBlock.blockNonce = block["block"]["blockNonce"]
+            tempBlock.blockFee = block["block"]["blockFee"]
             tempBlock.validationTime = block["block"]["validationTime"]
             tempBlock.blockTransactions = []
             for transaction in block["blockTransactions"]:
@@ -77,6 +83,8 @@ class DataConverter:
                     transaction["source"],
                     transaction["destination"],
                     transaction["balance"],
+                    transaction["gas"],
+                    transaction["fee"],
                     transaction["transactionMessage"],
                     transaction["transactionHash"],
                     transaction["transactionSignature"],

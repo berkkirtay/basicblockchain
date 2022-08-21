@@ -17,7 +17,7 @@ for i in range(25):
     wallets.append(newWallet)
     blockchain.forceTransaction(newWallet.publicKey, 100000000)
 
-blockchain.handleTransaction(wallets[0].publicKey)
+blockchain.handleTransactions(wallets[0].publicKey)
 
 for i in range(1, 200):
     randomWallet1 = wallets[random.randint(0, 24)]
@@ -25,7 +25,7 @@ for i in range(1, 200):
     blockchain.addTransaction(Transaction(
         randomWallet1.publicKey, randomWallet2.publicKey, random.randint(1, 1000), randomWallet1.privateKey))
 
-blockchain.handleTransaction(wallets[0].publicKey)
+blockchain.handleTransactions(wallets[0].publicKey)
 
 # Blockchain data export and import
 usersBalanceBeforeExport = 0

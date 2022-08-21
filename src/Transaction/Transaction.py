@@ -10,10 +10,13 @@ from Crypto.Hash import SHA256
 import base64
 from src.Transaction.TransactionSignature import TransactionSignature
 
+
 class Transaction:
     source = ''
     destination = ''
     balance = 0
+    gas = 0
+    fee = 0
     transactionMessage = ''
     transactionHash = ''
     transactionSignature = ''
@@ -21,9 +24,11 @@ class Transaction:
     isNew = True
 
     @classmethod
-    def initializeTransaction(self, source, destination, balance, transactionMessage, transactionHash, transactionSignature, validationTime):
+    def initializeTransaction(self, source, destination, gas, fee, balance, transactionMessage, transactionHash, transactionSignature, validationTime):
         self.source = source
         self.destination = destination
+        self.gas = gas
+        self.fee = fee
         self.balance = balance
         self.transactionMessage = transactionMessage
         self.transactionHash = transactionHash
@@ -59,3 +64,8 @@ class Transaction:
         self.transactionHash = self.transactionHash.hexdigest()
         self.transactionSignature = base64.b64encode(
             self.transactionSignature).decode("ascii")
+
+    def calculateTransactionFee(self, gasPrice: int):
+        self.gas = len(str(self.balance)) + \
+            round(len(self.transactionMessage) / 100)
+        self.fee = self.gas * gasPrice
