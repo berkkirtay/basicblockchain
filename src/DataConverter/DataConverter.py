@@ -9,6 +9,7 @@ from src.Blockchain.Blockchain import Blockchain, Block
 from src.Transaction.Transaction import Transaction
 import json
 
+
 class DataConverter:
     def dumpBlochcainDataAsStr(self, blockchain) -> str:
         data = self.dumpBlockchainData(blockchain)
@@ -19,21 +20,14 @@ class DataConverter:
         blockCounter = 0
 
         for block in blockchain.blockchain:
-            newBlock = {
-                "blockNumber": blockCounter,
-                "previousHash": block.previousBlockHash,
-                "blockHash": block.blockHash,
-                "blockNonce": block.blockNonce,
-                "hashDifficulty": block.hashDifficulty,
-                "validationTime": block.validationTime
-            }
-
             transactions = []
             for blockTransaction in block.blockTransactions:
                 newTransaction = {
                     "source":  blockTransaction.source,
                     "destination": blockTransaction.destination,
                     "balance": blockTransaction.balance,
+                    "gas": blockTransaction.gas,
+                    "fee": blockTransaction.fee,
                     "transactionMessage": blockTransaction.transactionMessage,
                     "transactionHash": blockTransaction.transactionHash,
                     "transactionSignature": blockTransaction.transactionSignature,
@@ -41,14 +35,26 @@ class DataConverter:
                 }
                 transactions.append(newTransaction)
 
+            newBlock = {
+                "blockNumber": blockCounter,
+                "previousHash": block.previousBlockHash,
+                "blockHash": block.blockHash,
+                "blockNonce": block.blockNonce,
+                "hashDifficulty": block.hashDifficulty,
+                "blockBalance": block.blockBalance,
+                "blockFee": block.blockFee,
+                "validationTime": block.validationTime,
+                "numberOFTransactions": len(transactions),
+                "blockTransactions": transactions.copy()
+            }
             blockCounter += 1
             blocks.append({
-                "block": newBlock,
-                "blockTransactions": transactions.copy()})
+                "block": newBlock})
 
         jsonData = {
             "HashDifficulty": blockchain.hashDifficulty,
-            "MiningReward": blockchain.miningReward,
+            "GasPrice": blockchain.gasPrice,
+            "ChainSize": blockchain.chainSize,
             "Blocks": blocks.copy()
         }
 
@@ -58,9 +64,9 @@ class DataConverter:
         blockchainData = json.loads(blockchainData)
 
         hashDifficulty = blockchainData["HashDifficulty"]
-        miningReward = blockchainData["MiningReward"]
+        gasPrice = blockchainData["GasPrice"]
 
-        loadedBlockchain = Blockchain(hashDifficulty, miningReward)
+        loadedBlockchain = Blockchain(hashDifficulty, gasPrice)
         loadedBlockchain.transactions = []
         loadedBlockchain.blockchain = []
 
@@ -70,13 +76,18 @@ class DataConverter:
             tempBlock.hashDifficulty = block["block"]["hashDifficulty"]
             tempBlock.blockHash = block["block"]["blockHash"]
             tempBlock.blockNonce = block["block"]["blockNonce"]
+            tempBlock.blockBalance = block["block"]["blockBalance"]
+            tempBlock.blockFee = block["block"]["blockFee"]
             tempBlock.validationTime = block["block"]["validationTime"]
             tempBlock.blockTransactions = []
-            for transaction in block["blockTransactions"]:
+
+            for transaction in block["block"]["blockTransactions"]:
                 tempTransaction = Transaction.initializeTransaction(
                     transaction["source"],
                     transaction["destination"],
                     transaction["balance"],
+                    transaction["gas"],
+                    transaction["fee"],
                     transaction["transactionMessage"],
                     transaction["transactionHash"],
                     transaction["transactionSignature"],
@@ -96,7 +107,7 @@ class BlockDataIO():
     def __init__(self):
         pathlib.Path(self.folderName).mkdir(exist_ok=True)
 
-    def readDataAndImport(self, path) -> Blockchain:
+    def importData(self, path) -> Blockchain:
         with open(self.folderName + path, 'r') as f:
             return self.importDataGenerateBlockchain(f.read())
 
