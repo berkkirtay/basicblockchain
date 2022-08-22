@@ -28,9 +28,6 @@ wallet2 = Wallet("person2")
 # Force transaction to person1:
 blockchain.forceTransaction(wallet1.publicKey, 10000)
 
-# Mine the pending transaction:
-blockchain.handleTransactions("null")
-
 # wallet1 sends 295 coins to wallet2.
 for i in range(1, 10):
     blockchain.addTransaction(Transaction(

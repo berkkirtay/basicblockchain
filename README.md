@@ -32,7 +32,8 @@ from Transaction import Transaction
 # Mining Difficulty and reward should be passed as arguments.
 # A genesis block will be mined after initialization.
 
-blockchain = Blockchain(2, 10)
+blockchain = Blockchain(2, 1) 
+# hashingDifficulty = 2, gasPrice = 1
 
 # -----------------------------------------------------------------
 # Creating two new wallets:
@@ -50,10 +51,6 @@ wallet2 = Wallet("person2")
 
 blockchain.forceTransaction(wallet1.publicKey, 1000)
 
-# Mine the pending transaction:
-
-blockchain.handleTransaction(wallet2.publicKey)
-
 # Transaction between two wallets:
 # Sender signs the transaction with his private key and the transaction
 # will be validated by its signature to make sure if the sender is the real sender.
@@ -61,7 +58,7 @@ blockchain.handleTransaction(wallet2.publicKey)
 blockchain.addTransaction(Transaction(
     wallet1.publicKey, wallet2.publicKey, 10, wallet1.privateKey))
 
-# Miner gains the block mining rewards.
+# Sender pays transaction fees to the miner (7).
 
 blockchain.handleTransaction(wallet2.publicKey)
 
@@ -70,8 +67,8 @@ blockchain.handleTransaction(wallet2.publicKey)
 wallet1.updateTransactions(blockchain)
 wallet2.updateTransactions(blockchain)
 
-# wallet1.coins: 990
-# wallet2.coins: 30
+# wallet1.coins: 983
+# wallet2.coins: 17
 ```
 
 ## GUI Screenshots 

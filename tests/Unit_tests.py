@@ -28,7 +28,7 @@ class BlockchainFactory:
 
 
 blockchainFactory = BlockchainFactory()
-'''
+
 
 def test_blockchainsShouldBeUnique():
     blockchain1 = blockchainFactory.getBlockchain(2, 1)
@@ -222,11 +222,9 @@ def test_shouldRaiseErrWhenAttemptToUseDifferentDataType():
     assert TransactionDataConflictError().err_str in str(
         err.value)
 
-'''
-
 
 def test_integration_blockchainDataIO():
-    blockchain = Blockchain(3, 1)
+    blockchain = Blockchain(3, 0)
 
 # Creating random wallets
     numberofWallets = 5
@@ -235,11 +233,9 @@ def test_integration_blockchainDataIO():
     for i in range(numberofWallets):
         newWallet = Wallet("person")
         wallets.append(newWallet)
-        blockchain.forceTransaction(newWallet.publicKey, 1000000000)
+        blockchain.forceTransaction(newWallet.publicKey, 10000)
 
-    blockchain.handleTransactions(wallets[0].publicKey)
-
-    for i in range(1, 7):
+    for i in range(1, 5):
         randomWallet1 = wallets[random.randint(0, numberofWallets - 1)]
         randomWallet2 = wallets[random.randint(0, numberofWallets - 1)]
         blockchain.addTransaction(Transaction(
@@ -247,19 +243,20 @@ def test_integration_blockchainDataIO():
 
     blockchain.handleTransactions(wallets[0].publicKey)
 
+
 # Blockchain data export and import
     usersBalanceBeforeExport = 0
     usersBalanceAfterExport = 0
 
     for i in range(numberofWallets):
-        wallets[i].updateTransactions(blockchain)
         usersBalanceBeforeExport += wallets[i].getBalance(blockchain)
 
     BlockDataIO().exportData(blockchain, "blockchainData.json")
-    blockchain2 = BlockDataIO().readDataAndImport("blockchainData.json")
+    newBlockchain = BlockDataIO().importData("blockchainData.json")
 
     for i in range(numberofWallets):
-        wallets[i].updateTransactions(blockchain2)
-        usersBalanceAfterExport += wallets[i].getBalance(blockchain2)
+        assert wallets[i].getBalance(
+            blockchain) == wallets[i].getBalance(newBlockchain)
+        usersBalanceAfterExport += wallets[i].getBalance(newBlockchain)
 
     assert usersBalanceBeforeExport == usersBalanceAfterExport

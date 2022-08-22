@@ -20,16 +20,6 @@ class DataConverter:
         blockCounter = 0
 
         for block in blockchain.blockchain:
-            newBlock = {
-                "blockNumber": blockCounter,
-                "previousHash": block.previousBlockHash,
-                "blockHash": block.blockHash,
-                "blockNonce": block.blockNonce,
-                "hashDifficulty": block.hashDifficulty,
-                "blockFee": block.blockFee,
-                "validationTime": block.validationTime
-            }
-
             transactions = []
             for blockTransaction in block.blockTransactions:
                 newTransaction = {
@@ -45,10 +35,21 @@ class DataConverter:
                 }
                 transactions.append(newTransaction)
 
+            newBlock = {
+                "blockNumber": blockCounter,
+                "previousHash": block.previousBlockHash,
+                "blockHash": block.blockHash,
+                "blockNonce": block.blockNonce,
+                "hashDifficulty": block.hashDifficulty,
+                "blockBalance": block.blockBalance,
+                "blockFee": block.blockFee,
+                "validationTime": block.validationTime,
+                "numberOFTransactions": len(transactions),
+                "blockTransactions": transactions.copy()
+            }
             blockCounter += 1
             blocks.append({
-                "block": newBlock,
-                "blockTransactions": transactions.copy()})
+                "block": newBlock})
 
         jsonData = {
             "HashDifficulty": blockchain.hashDifficulty,
@@ -63,7 +64,7 @@ class DataConverter:
         blockchainData = json.loads(blockchainData)
 
         hashDifficulty = blockchainData["HashDifficulty"]
-        gasPrice = blockchainData["GrasPrice"]
+        gasPrice = blockchainData["GasPrice"]
 
         loadedBlockchain = Blockchain(hashDifficulty, gasPrice)
         loadedBlockchain.transactions = []
@@ -75,10 +76,12 @@ class DataConverter:
             tempBlock.hashDifficulty = block["block"]["hashDifficulty"]
             tempBlock.blockHash = block["block"]["blockHash"]
             tempBlock.blockNonce = block["block"]["blockNonce"]
+            tempBlock.blockBalance = block["block"]["blockBalance"]
             tempBlock.blockFee = block["block"]["blockFee"]
             tempBlock.validationTime = block["block"]["validationTime"]
             tempBlock.blockTransactions = []
-            for transaction in block["blockTransactions"]:
+
+            for transaction in block["block"]["blockTransactions"]:
                 tempTransaction = Transaction.initializeTransaction(
                     transaction["source"],
                     transaction["destination"],
@@ -104,7 +107,7 @@ class BlockDataIO():
     def __init__(self):
         pathlib.Path(self.folderName).mkdir(exist_ok=True)
 
-    def readDataAndImport(self, path) -> Blockchain:
+    def importData(self, path) -> Blockchain:
         with open(self.folderName + path, 'r') as f:
             return self.importDataGenerateBlockchain(f.read())
 

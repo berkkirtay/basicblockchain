@@ -17,8 +17,6 @@ for i in range(25):
     wallets.append(newWallet)
     blockchain.forceTransaction(newWallet.publicKey, 100000000)
 
-blockchain.handleTransactions(wallets[0].publicKey)
-
 for i in range(1, 200):
     randomWallet1 = wallets[random.randint(0, 24)]
     randomWallet2 = wallets[random.randint(0, 24)]
@@ -36,7 +34,7 @@ for i in range(25):
     usersBalanceBeforeExport += wallets[i].getBalance(blockchain)
 
 BlockDataIO().exportData(blockchain, "blockchainData.json")
-blockchain2 = BlockDataIO().readDataAndImport("blockchainData.json")
+blockchain2 = BlockDataIO().importData("blockchainData.json")
 
 for i in range(25):
     wallets[i].updateTransactions(blockchain2)

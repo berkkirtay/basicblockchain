@@ -24,18 +24,15 @@ class Transaction:
     isNew = True
 
     @classmethod
-    def initializeTransaction(self, source, destination, gas, fee, balance, transactionMessage, transactionHash, transactionSignature, validationTime):
-        self.source = source
-        self.destination = destination
+    def initializeTransaction(self, source, destination, balance, gas, fee, transactionMessage, transactionHash, transactionSignature, validationTime):
         self.gas = gas
         self.fee = fee
-        self.balance = balance
         self.transactionMessage = transactionMessage
         self.transactionHash = transactionHash
         self.transactionSignature = transactionSignature
         self.validationTime = validationTime
         self.isNew = False
-        return Transaction(source, destination, balance, None)
+        return self(source, destination, balance, None)
 
     def __init__(self, source: str, destination: str, balance: float, sourcePrivateKey: str, transactionMessage=None):
         self.source = source

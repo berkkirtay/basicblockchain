@@ -71,6 +71,7 @@ class Block():
     blockHash = ''
     blockNonce = 0
     hashDifficulty = 0
+    blockBalance = 0
     blockFee = 0
     validationTime = None
     blockTransactionCapacity = 1000
@@ -84,7 +85,7 @@ class Block():
         self.previousBlockHash = previousBlockHash
         self.blockTransactions = blockTransactions
         self.validationTime = datetime.now().strftime("%H:%M:%S")
-        self.calculateBlockFee()
+        self.calculateBlockFeeAndBalance()
         self.blockHash = self.generateBlockHash()
         self.proofOfWork()
 
@@ -108,9 +109,10 @@ class Block():
         logging.info(
             f"Block hash = {self.blockHash} is mined in {finalTime.total_seconds()} seconds.")
 
-    def calculateBlockFee(self):
+    def calculateBlockFeeAndBalance(self):
         for transaction in self.blockTransactions:
             self.blockFee += transaction.fee
+            self.blockBalance += transaction.balance
 
 
 class Blockchain():
@@ -121,7 +123,7 @@ class Blockchain():
     pendingTransactions = []
     lastBlockLog = ''
 
-    # We set blockchain's general features.
+    # Setting up blockchain's general features.
 
     def __init__(self, hashDifficulty: int, gasPrice: int = 1):
         self.hashDifficulty = hashDifficulty
@@ -144,8 +146,12 @@ class Blockchain():
 
         global KEY_PAIR
         KEY_PAIR = GenesisBlockKeyProvider()
-        genericTransactions = [Transaction(
-            KEY_PAIR.public_key(), "null", 0, KEY_PAIR.private_key())]
+
+        genericTransaction = Transaction(
+            KEY_PAIR.public_key(), "null", 0, KEY_PAIR.private_key())
+        genericTransaction.approve()
+        genericTransactions = [genericTransaction]
+
         self.validationFlag = True
         return Block(SHA256.new(randomKey.encode('utf-8')).hexdigest(),
                      self.hashDifficulty, genericTransactions)
@@ -230,15 +236,14 @@ class Blockchain():
 
         newTransaction.calculateTransactionFee(self.gasPrice)
         transactionBalance = self.getBalance(newTransaction.source)
-        requestedBalance = newTransaction.balance + newTransaction.fee
 
         if newTransaction.balance <= 0:
             self.lastBlockLog = "Transaction amount can't be zero or a negative value!"
             logging.warning(self.lastBlockLog)
             raise BalanceError(self.lastBlockLog)
 
-        if transactionBalance < requestedBalance:
-            self.lastBlockLog = f"Insufficient balance in the source! {newTransaction.source} needs: {requestedBalance  - transactionBalance}"
+        if transactionBalance < newTransaction.balance:
+            self.lastBlockLog = f"Insufficient balance in the source! {newTransaction.source} needs: {newTransaction.balance  - transactionBalance}"
             logging.warning(self.lastBlockLog)
             raise BalanceError("Insufficient balance in the source!")
 
@@ -248,9 +253,6 @@ class Blockchain():
 
         # ***Activate this to get only one transaction per block.***
         # self.handleTransaction("null")
-
-    def addText(self, newText: str):
-        self.pendingTransactions.append(newText)
 
     # Forcing transactions is only for testing. It creates a
     # transaction with the genesis block's signature.
@@ -262,6 +264,8 @@ class Blockchain():
                                      KEY_PAIR.private_key())
 
         self.pendingTransactions.append(newTransaction)
+        self.handleTransactions(KEY_PAIR.public_key())
+
         logging.info(
             f"A forced transaction is added to the chain. Amount: {balance}")
 
@@ -302,14 +306,15 @@ class Blockchain():
             # genesis key pair. This key pair is the authorized to
             # give block rewards and force transactions to test blockchain.
 
-            blockReward = Transaction(
-                KEY_PAIR.public_key(),
-                rewardAddress,
-                currentReward,
-                KEY_PAIR.private_key())
+            if rewardAddress != KEY_PAIR.public_key():
+                blockReward = Transaction(
+                    KEY_PAIR.public_key(),
+                    rewardAddress,
+                    currentReward,
+                    KEY_PAIR.private_key())
 
-            blockReward.approve()
-            limitedTransactions.append(blockReward)
+                blockReward.approve()
+                limitedTransactions.append(blockReward)
 
             self.mineNewBlock(limitedTransactions.copy())
 
@@ -328,22 +333,22 @@ class Blockchain():
     # with checking all Transactions within the blockchain.
 
     def getBalance(self, addressofBalance: str):
-        availablebalance = 0
+        availableBalance = 0
 
         for i in range(len(self.blockchain)):
             for j in range(len(self.blockchain[i].blockTransactions)):
                 if self.blockchain[i].blockTransactions[j].destination == addressofBalance:
-                    availablebalance += self.blockchain[i].blockTransactions[j].balance
+                    availableBalance += self.blockchain[i].blockTransactions[j].balance
                 if self.blockchain[i].blockTransactions[j].source == addressofBalance:
-                    availablebalance -= self.blockchain[i].blockTransactions[j].balance + \
-                        self.blockchain[i].blockTransactions[j].fee
+                    availableBalance -= (self.blockchain[i].blockTransactions[j].balance +
+                                         self.blockchain[i].blockTransactions[j].fee)
 
         # Check if current source has any pending transaction.
 
         for transaction in self.pendingTransactions:
             if transaction.destination == addressofBalance:
-                availablebalance += transaction.balance
+                availableBalance += transaction.balance
             if transaction.source == addressofBalance:
-                availablebalance -= transaction.balance + transaction.fee
+                availableBalance -= (transaction.balance + transaction.fee)
 
-        return availablebalance
+        return availableBalance
