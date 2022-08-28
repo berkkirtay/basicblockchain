@@ -24,7 +24,9 @@ class Transaction:
     isNew = True
 
     @classmethod
-    def initializeTransaction(self, source, destination, balance, gas, fee, transactionMessage, transactionHash, transactionSignature, validationTime):
+    def initializeTransaction(self, source: str, destination: str, balance: float,
+                              gas: int, fee: int, transactionMessage: str, transactionHash: str,
+                              transactionSignature: str, validationTime: str):
         self.gas = gas
         self.fee = fee
         self.transactionMessage = transactionMessage
@@ -34,7 +36,9 @@ class Transaction:
         self.isNew = False
         return self(source, destination, balance, None)
 
-    def __init__(self, source: str, destination: str, balance: float, sourcePrivateKey: str, transactionMessage=None):
+    def __init__(self, source: str, destination: str,
+                 balance: float, sourcePrivateKey: str,
+                 transactionMessage=None):
         self.source = source
         self.destination = destination
         self.balance = balance

@@ -4,8 +4,8 @@
 # implementation, I used RSA algorithm.
 # For each transaction, we will encrypt the transaction
 # hash with the source's private key and send it to the handler.
-# Handler will validate transaction by decrypting the hash with 
-# the source's public key and compare it with the original transaction 
+# Handler will validate transaction by decrypting the hash with
+# the source's public key and compare it with the original transaction
 # hash. If they are same, then validation will be successful.
 # Copyright (c) 2022 Berk Kırtay
 # --------------------------------------------------------------------
@@ -16,6 +16,7 @@ from Crypto.Signature import PKCS1_v1_5 as signer
 from src.BlockchainExceptionHandler.BlockchainExceptionHandler import SignatureError
 import base64
 
+
 class TransactionSignature:
     def __init__(self):
         pass
@@ -25,7 +26,8 @@ class TransactionSignature:
         signature = signer.new(RSA.importKey(privateKey)).sign(transactionHash)
         return signature
 
-    def validateTransaction(self, transactionHash, signedTransactionHash: bytes, publicKey: str) -> bool:
+    def validateTransaction(self, transactionHash,
+                            signedTransactionHash: bytes, publicKey: str) -> bool:
         publicKey = self.decodePublicKey(publicKey)
         try:
             validator = signer.new(RSA.importKey(publicKey)).verify(
